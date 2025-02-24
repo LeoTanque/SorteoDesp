@@ -1,0 +1,191 @@
+<div class="container p-2 bg-light rounded shadow-sm page-dashboard">
+  <div class="grid">
+
+    <div class="col-6 p-md-6">
+      <h3>Rifas Activas</h3>
+      <div *ngFor="let raffle of activeRaffles" class="p-card mb-3">
+        <div class="p-card-body" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px; text-align: center;">
+          <h5 class="fw-bold">{{ raffle.nombre }}</h5>
+          <p>{{ raffle.producto.nombre }}</p>
+          <p>{{ raffle.producto.descripcion }}</p>
+
+
+          <p-carousel
+          [value]="raffle.producto.imagenes"
+          [numVisible]="1"
+          [numScroll]="1"
+          [circular]="true"
+          [responsiveOptions]="responsiveOptions">
+
+          <ng-template let-image pTemplate="item">
+            <div class="border-1 surface-border border-round m-2 p-3">
+              <div class="relative mx-auto">
+                <img
+                  [src]="image"
+                  alt="Imagen del producto"
+                  class="w-full border-round"
+                  style="max-height: 150px; object-fit: cover;" />
+              </div>
+
+
+            </div>
+          </ng-template>
+        </p-carousel>
+
+
+          <div class="flex gap-2">
+            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm"></button>
+            <button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></button>
+            <button pButton type="button" label="Eliminar" class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="col-6 p-md-6">
+      <h3>Rifas Finalizadas</h3>
+      <div *ngFor="let raffle of completedRaffles" class="p-card mb-3">
+        <div class="p-card-body" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px">
+          <h5 class="fw-bold">{{ raffle.nombre }}</h5>
+          <p>{{ raffle.producto.nombre }}</p>
+          <p>{{ raffle.producto.descripcion }}</p>
+          <p-carousel
+          [value]="raffle.producto.imagenes"
+          [numVisible]="1"
+          [numScroll]="1"
+          [circular]="true"
+          [responsiveOptions]="responsiveOptions">
+
+          <ng-template let-image pTemplate="item">
+            <div class="border-1 surface-border border-round m-2 p-3">
+              <div class="relative mx-auto">
+                <img
+                  [src]="image"
+                  alt="Imagen del producto"
+                  class="w-full border-round"
+                  style="max-height: 150px; object-fit: cover;" />
+              </div>
+            </div>
+          </ng-template>
+        </p-carousel>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm"></button>
+            <button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></button>
+            <button pButton type="button" label="Eliminar" class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="mt-4 text-center">
+    <button pButton type="button" label="Crear Nueva Rifa" icon="pi pi-plus" class="p-button-success" (click)="showDialog()"></button>
+
+  </div>
+  <div class="mt-2 text-center">
+    <p-button (onClick)="sidebarVisible = true" icon="pi pi-arrow-right" />
+
+  </div>
+
+</div>
+<!--button pButton type="button" label="Guardar" icon="pi pi-check" class="p-button-primary" (click)="shareOnWhatsApp()"></!--button>
+
+<button-- pButton type="button" label="Abrir Modal VIP" class="p-button-success" (click)="abrirModal()"></button-->
+
+
+<p-dialog header="Crear Nueva Rifa" [(visible)]="displayDialog" [modal]="true" [style]="{ width: '85%' }">
+  <form (ngSubmit)="onSubmit()" #raffleForm="ngForm">
+    <div class="p-fluid grid flex-col gap-2">
+      <div class="col-12">
+        <label for="name" class="block font-bold mb-3">Nombre</label>
+        <input id="name" type="text" pInputText [(ngModel)]="newRaffle.nombre" name="name" required class="w-full" />
+      </div>
+      <div class="col-12">
+        <label for="participants" class="block font-bold mb-3">Cantidad de Participantes</label>
+        <input id="participants" type="number" pInputText [(ngModel)]="newRaffle.cantidadParticipantes" name="participants" required class="w-full" />
+      </div>
+      <div class="col-12">
+        <label for="date" class="block font-bold mb-3">Fecha del Sorteo</label>
+        <input type="date" pInputText id="date" [(ngModel)]="newRaffle.fechaSorteo" name="date" class="w-full" />
+      </div>
+      <div class="col-12">
+        <button pButton type="button" label="Agregar Producto" icon="pi pi-plus" class="p-button-primary" (click)="showProductDialog()"></button>
+      </div>
+    </div>
+    <div class="flex justify-content-end gap-2">
+      <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+      <button pButton type="submit" label="Guardar" icon="pi pi-check" class="p-button-primary" [disabled]="!raffleForm.form.valid"></button>
+    </div>
+  </form>
+</p-dialog>
+
+
+<p-dialog header="Agregar Producto" [(visible)]="displayProductDialog" [modal]="true" [style]="{ width: '80%' }">
+  <div class="p-fluid grid flex-col gap-2">
+    <div class="col-12">
+      <label for="productName" class="block font-bold mb-3">Nombre del Producto</label>
+      <input id="productName" type="text" pInputText [(ngModel)]="productData.nombre" name="productName" class="w-full" />
+    </div>
+    <div class="col-12">
+      <label for="productDescription" class="block font-bold mb-3">Descripción del Producto</label>
+      <textarea id="productDescription" rows="3" pInputTextarea [(ngModel)]="productData.descripcion" name="productDescription" class="w-full"></textarea>
+    </div>
+    <div class="col-12">
+      <label for="productImage" class="block font-bold mb-3">Imagen del Producto</label>
+      <input type="file" id="productImage" accept="image/*" (change)="onFileChange($event)" class="w-full" />
+      <button pButton label="Subir Imagen" icon="pi pi-upload" class="p-button-secondary mt-2" (click)="uploadProductImages()" [disabled]="uploading" [disabled]="!selectedFiles"></button>
+      <small *ngIf="productData.imagenes.length > 0">Imagen subida: {{ productData.imagenes[0] }}</small>
+    </div>
+  </div>
+  <div class="flex justify-content-end gap-2">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideProductDialog()"></button>
+    <button pButton type="button" label="Guardar" icon="pi pi-check" class="p-button-primary" (click)="saveProductData()"></button>
+  </div>
+</p-dialog>
+
+
+
+<p-dialog header="Ingresar Código VIP" [(visible)]="displayDialog1" [modal]="true" [style]="{ width: '50%' }">
+  <div class="p-fluid grid flex-col gap-2">
+    <div class="col-12">
+      <label for="productName" class="block font-bold mb-3">Ingrese el codigo VIP</label>
+      <input type="text" pInputText id="codigoVip" [(ngModel)]="codigoVip" name="productName" class="w-full" />
+    </div>
+
+  </div>
+  <div class="flex justify-content-end gap-2">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideProductDialog()"></button>
+    <button pButton type="button" label="Validar Código" icon="pi pi-check" class="p-button-primary" [disabled]="!codigoVip"  (click)="validarYAsignarCodigoVip()"></button>
+  </div>
+</p-dialog>
+
+
+<div class="card flex justify-content-center">
+  <p-sidebar [(visible)]="sidebarVisible" >
+   <h3 class="align-items-start">Acciones</h3>
+   <div class="overflow-y-auto">
+    <div class="list-none py-3 m-0">
+      <ul class="list-none p-0 m-0 overflow-hidden">
+        <li>
+          <div class="flex align-items-start cursor-pointer mb-2">
+            <button pButton type="button" label="Ser VIP" class="p-button-success" (click)="abrirModal()"></button>
+          </div>
+        </li>
+        <li>
+          <div class="flex align-items-start cursor-pointer">
+            <button pButton type="button" label="Guardar"  class="p-button-primary" (click)="shareOnWhatsApp()"></button>
+          </div>
+        </li>
+      </ul>
+    </div>
+   </div>
+
+
+  </p-sidebar>
+<!--p-button (onClick)="sidebarVisible = true" icon="pi pi-arrow-right" /-->
+</div>
+
+
+

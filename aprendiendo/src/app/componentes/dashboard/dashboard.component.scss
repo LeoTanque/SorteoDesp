@@ -1,0 +1,111 @@
+.centered h2,
+.centered small {
+  text-align: center;
+}
+
+.container{
+  max-width: 1200px;
+}
+
+.page-dashboard {
+  max-width: 1200px;
+  margin: auto;
+}
+
+ p-card {
+  margin: 1rem 0;
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+}
+
+.p-card {
+  transition: transform 0.3s ease,
+  box-shadow 0.3s ease;
+  cursor: pointer;
+}
+.p-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.897);
+}
+
+.p-button.p-button-sm {
+  font-size: 0.8rem;
+  padding: 0.5rem 1.09375rem;
+}
+
+
+.list-group-item {
+  display: block;
+  color: var(--bs-list-group-color);
+  text-decoration: none;
+  border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+
+  cursor: pointer;
+}
+
+.p-dialog-content {
+  min-width: 100px;
+}
+
+@media only screen and (max-width: 768px) {
+  .p-dialog {
+    width: 90% !important;
+    margin: 0 auto;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .p-dialog {
+    width: 100% !important;
+    margin: 0 auto;
+  }
+
+  .flex {
+    flex-direction: column;
+  }
+
+  .col-6 {
+    width: 100%;
+  }
+}
+
+@media(max-width: 768px) {
+  .grid .col-6 {
+    display: block;
+    width: 100%;
+  }
+
+  .p-col-md-5, .p-offset-md-1 {
+    display: block;
+    width: 100%;
+    margin: 0;
+  }
+
+  .p-button.p-button-sm {
+    font-size: 0.5rem;
+    padding: 0.5rem 1.09375rem;
+  }
+  .flex {
+    display: flex !important;
+    text-align: center;
+    justify-content: center;
+}
+
+p{
+  text-align: center;
+}
+
+}
+
+.imag {
+  display: flex;
+  justify-content: center;
+}
+
+.flex {
+  display: flex !important
+;
+  justify-content: center;
+}
+
+
+

@@ -1,0 +1,22 @@
+<p-toolbar>
+  <div class="centered" style="width: 90%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+    <h2>Hola, <span id="usuario-registrado" class="text-primary">{{ userName }}</span>!</h2>
+    <p class="text-center">Días restantes para el vencimiento de tu cuenta: <span id="dias-vencimiento" class="text-danger fw-bold">{{ daysLeft }}</span></p>
+  </div>
+
+  <div class="p-toolbar-group-end">
+    <!--button-- pButton type="button" label="Logout" class="p-button-danger p-button-sm" (click)="logout()"></!--button-->
+  </div>
+</p-toolbar>
+
+<div class="card flex justify-content-center">
+  <p-sidebar [(visible)]="sidebarVisible">
+   <h3>Sidebar</h3>
+   <p class="text-center">Días restantes para el vencimiento de tu cuenta: <span id="dias-vencimiento" class="text-danger fw-bold">{{ daysLeft }}</span></p>
+   <button pButton type="button" label="Logout" class="p-button-danger p-button-sm" (click)="logout()"></button>
+  </p-sidebar>
+<p-button (onClick)="sidebarVisible = true" icon="pi pi-arrow-right" />
+</div>
+
+
+
