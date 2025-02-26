@@ -13,10 +13,16 @@ import { CommonModule } from '@angular/common';
 export class AppComponent {
   title = 'aprendiendo';
   shouldShowToolbar: boolean = true;
+
   constructor(private router: Router) {
     this.router.events.subscribe(event => {
+
       if (event instanceof NavigationEnd) {
-        this.shouldShowToolbar = !['/'].includes(this.router.url);
+
+        const currentUrl = this.router.url;
+        // Oculta el navbar si la ruta es exactamente '/' o empieza con '/admin'
+        this.shouldShowToolbar = !(currentUrl === '/' || currentUrl.startsWith('/codigos'));
+        //this.shouldShowToolbar = !['/'].includes(this.router.url);
       }
     });
   }

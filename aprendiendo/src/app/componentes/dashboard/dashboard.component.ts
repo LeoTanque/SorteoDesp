@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -20,16 +20,18 @@ import { forkJoin, Subscription, tap } from 'rxjs';
 import { CarouselModule } from 'primeng/carousel';
 import { TagModule } from 'primeng/tag';
 import { SidebarModule} from 'primeng/sidebar';
+import { TableModule } from 'primeng/table';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ToolbarModule ,ReactiveFormsModule, FormsModule, DialogModule, ButtonModule, InputTextModule,
+  imports: [CommonModule, ToolbarModule ,ReactiveFormsModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TableModule,
     CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
 
+  @ViewChildren('fileInput') fileInputs!: QueryList<ElementRef>;
   userName: string = '';
   userId!: any;
   daysLeft: number = 30;
@@ -51,6 +53,8 @@ export class DashboardComponent implements OnInit {
     // Asigna el producto seleccionado aquí
     active: true
   };
+  cantidadInvalida: boolean = false;
+  descripcionInvalida: boolean = false;
 
   responsiveOptions = [
     {
@@ -77,6 +81,7 @@ export class DashboardComponent implements OnInit {
   cantidadRifas: number = 0;
   isVip!: boolean | null;
   tieneRifa!: boolean;
+  subida:boolean = false;
   mensaje = '';
 
   displayDialog: boolean = false;
@@ -97,7 +102,9 @@ export class DashboardComponent implements OnInit {
   };
 
   selectedFile: File | null = null;
-  selectedFiles: File[] = [];
+  selectedFiles1: File[] = [];
+  selectedFiles: (any | null)[] = [];
+  previews: (string | null)[] = [];
   uploading: boolean = false;
   subscription!: Subscription;
 
@@ -399,11 +406,23 @@ updateRafflesByStatus(): void {
   }
 
   // Ocultar modal de producto
-  hideProductDialog() {
+  hideProductDialog1() {
     this.displayProductDialog = false;
     this.displayDialog1 = false;
   }
 
+  hideProductDialog(): void {
+    this.displayProductDialog = false;
+    this.displayDialog1 = false;
+    this.subida = false
+    // Reinicia los arrays para que al volver a abrir se muestren inputs vacíos
+    this.selectedFiles = [];
+    this.previews = [];
+
+    if (this.fileInputs) {
+      this.fileInputs.forEach(input => input.nativeElement.value = '');
+    }
+  }
 
    // Abrir el modal
    abrirModal(): void {
@@ -411,7 +430,9 @@ updateRafflesByStatus(): void {
     this.codigoVip= ''
   }
 
-
+  openSubir() {
+   this.subida = true
+    }
 
 
   onFileSelected(event: any): void {
@@ -420,10 +441,34 @@ updateRafflesByStatus(): void {
     }
   }
 
-  onFileChange(event: any): void {
+  onFileChange1(event: any): void {
     this.selectedFiles = Array.from(event.target.files);
   }
 
+  onFileChange(event: any, index: number): void {
+    const file: File = event.target.files[0];
+    if (!file) {
+      return;
+    }
+    // Guarda el archivo en la posición correspondiente
+    this.selectedFiles[index] = file;
+
+    // Genera la previsualización con FileReader
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.previews[index] = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+
+  removeSelectedImage(index: number): void {
+    this.selectedFiles[index] = null;
+    this.previews[index] = null;
+    if (this.fileInputs) {
+      this.fileInputs.forEach(input => input.nativeElement.value = '');
+    }
+  }
 
 
   shareOnWhatsApp(): void {
@@ -434,6 +479,18 @@ updateRafflesByStatus(): void {
 
 
 
+  validarCantidadParticipantes(): void {
+    this.cantidadInvalida = this.newRaffle.cantidadParticipantes > 100;
+  }
+
+  validarDescripcion(): void {
+    this.descripcionInvalida = this.productData.descripcion.length > 1500;
+    if (this.descripcionInvalida) {
+      this.productData.descripcion = this.productData.descripcion.substring(0, 1500);
+    }
+  }
+
+
 
 
 onSubmit(): void {
@@ -441,6 +498,8 @@ onSubmit(): void {
     console.error('El formulario no es válido.');
     return;
   }
+
+
 
   if (this.isVip && !this.codigoVip) {
     console.error('Código VIP no válido');
@@ -545,6 +604,20 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
     );
   }
 
+  isValid1(): boolean {
+    if (!this.productData.nombre || this.productData.nombre.trim() === '') {
+      console.error('El nombre del producto es obligatorio.');
+      return false;
+    }
+
+    if (this.descripcionInvalida) {
+      console.error('La descripción supera los 1500 caracteres.');
+      return false;
+    }
+
+    return true;
+  }
+
   hideDialog(): void {
     this.displayDialog = false;
 
@@ -577,7 +650,7 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
       }
 
 
-      uploadProductImages(): void {
+      uploadProductImages1(): void {
         if (this.selectedFiles.length === 0) {
           console.warn('No hay imágenes para subir.');
           return;
@@ -585,7 +658,7 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
 
         this.uploading = true;
 
-        this.raffleService.uploadImages(this.selectedFiles).subscribe({
+        this.raffleService.uploadImages(this.selectedFiles1).subscribe({
           next: (uploadedUrls) => {
             this.productData.imagenes.push(...uploadedUrls);
             this.selectedFiles = []; // Limpiar la selección después de subir
@@ -600,7 +673,32 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
       }
 
 
+      uploadProductImage(index: number): void {
+        if (!this.selectedFiles[index]) {
+          console.warn(`No hay imagen para subir en el slot ${index}.`);
+          return;
+        }
 
+        this.uploading = true;
+
+        // Llama al servicio enviando solo el archivo correspondiente en un array
+        this.raffleService.uploadImages([this.selectedFiles[index]]).subscribe({
+          next: (uploadedUrls: string[]) => {
+            // Se asume que el servicio devuelve un array con la URL de la imagen subida
+            this.productData.imagenes.push(...uploadedUrls);
+
+            // Limpia el slot una vez subida la imagen
+            this.selectedFiles[index] = null;
+            this.previews[index] = null;
+            this.uploading = false;
+            console.log(`Imagen subida correctamente en el slot ${index}:`, uploadedUrls);
+          },
+          error: (error) => {
+            console.error(`Error al subir la imagen del slot ${index}:`, error);
+            this.uploading = false;
+          }
+        });
+      }
 
 
 

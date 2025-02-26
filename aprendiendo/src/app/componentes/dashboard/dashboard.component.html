@@ -99,12 +99,15 @@
   <form (ngSubmit)="onSubmit()" #raffleForm="ngForm">
     <div class="p-fluid grid flex-col gap-2">
       <div class="col-12">
-        <label for="name" class="block font-bold mb-3">Nombre</label>
+        <label for="name" class="block font-bold mb-3">Nombre de tu sorteo</label>
         <input id="name" type="text" pInputText [(ngModel)]="newRaffle.nombre" name="name" required class="w-full" />
       </div>
       <div class="col-12">
         <label for="participants" class="block font-bold mb-3">Cantidad de Participantes</label>
-        <input id="participants" type="number" pInputText [(ngModel)]="newRaffle.cantidadParticipantes" name="participants" required class="w-full" />
+        <input id="participants" type="number" pInputText [(ngModel)]="newRaffle.cantidadParticipantes" name="participants" required class="w-full"
+        (input)="validarCantidadParticipantes()"
+        />
+        <small class="text-red-500" *ngIf="cantidadInvalida">No pueden haber más de 100 participantes.</small>
       </div>
       <div class="col-12">
         <label for="date" class="block font-bold mb-3">Fecha del Sorteo</label>
@@ -130,13 +133,17 @@
     </div>
     <div class="col-12">
       <label for="productDescription" class="block font-bold mb-3">Descripción del Producto</label>
-      <textarea id="productDescription" rows="3" pInputTextarea [(ngModel)]="productData.descripcion" name="productDescription" class="w-full"></textarea>
+      <textarea id="productDescription" rows="3" pInputTextarea [(ngModel)]="productData.descripcion" name="productDescription" class="w-full"
+      (input)="validarDescripcion()"
+      ></textarea>
+      <small class="text-red-500" *ngIf="descripcionInvalida">La descripción no puede superar los 1500 caracteres.</small>
     </div>
     <div class="col-12">
-      <label for="productImage" class="block font-bold mb-3">Imagen del Producto</label>
-      <input type="file" id="productImage" accept="image/*" (change)="onFileChange($event)" class="w-full" />
-      <button pButton label="Subir Imagen" icon="pi pi-upload" class="p-button-secondary mt-2" (click)="uploadProductImages()" [disabled]="uploading" [disabled]="!selectedFiles"></button>
-      <small *ngIf="productData.imagenes.length > 0">Imagen subida: {{ productData.imagenes[0] }}</small>
+      <!--label for="productImage" class="block font-bold mb-3">Imagen del Producto</!--label>
+      <input type="file" id="productImage" accept="image/*" (change)="onFileChange1($event)" class="w-full" />
+      <button pButton label="Subir Imagen" icon="pi pi-upload" class="p-button-secondary mt-2" (click)="uploadProductImages1()" [disabled]="uploading" [disabled]="!selectedFiles"></button>
+      <small-- *ngIf="productData.imagenes.length > 0">Imagen subida: {{ productData.imagenes[0] }}</small-->
+      <button pButton type="button" label="Subir Imagenes" icon="pi pi-upload" (click)="openSubir()"></button>
     </div>
   </div>
   <div class="flex justify-content-end gap-2">
@@ -187,5 +194,85 @@
 <!--p-button (onClick)="sidebarVisible = true" icon="pi pi-arrow-right" /-->
 </div>
 
+<div class="card flex justify-content-center">
 
+  <p-dialog header="Subir Imágenes de Producto" [modal]="true" [(visible)]="subida" [style]="{ width: '60%' }">
+    <!-- Suponiendo que tienes 3 filas para subir imágenes -->
+    <!--div-- *ngFor="let slot of [0,1,2]; let i = index" class="flex align-items-center gap-3 mb-3">
+
+      <input type="file" id="productImage{{i}}"
+      accept="image/*"
+      (change)="onFileChange($event, i)"
+      class="w-full"
+      #fileInput
+      />
+
+      <div *ngIf="previews[i]" class="preview-container" style="position: relative; display: inline-block;">
+        <img [src]="previews[i]" alt="Vista previa" style="max-width: 100px; max-height: 100px;" />
+        <button type="button" class="delete-button p-button p-component"
+                (click)="removeSelectedImage(i)"
+                style="position: absolute; top: 0; right: 0; background: rgb(190, 34, 34);
+                color: white; border: none; border-radius: 45%; width: 20px; display: flex; align-items: center; justify-content: center;">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+
+      <button
+        pButton
+        label="Subir"
+        icon="pi pi-upload"
+        class="p-button-secondary"
+        (click)="uploadProductImage(i)"
+        [disabled]="uploading || !selectedFiles[i]">
+      </button>
+    </!--div-->
+
+    <div *ngFor="let slot of [0,1,2]; let i = index" class="upload-slot-grid mb-3">
+      <!-- Columna 1: Input file -->
+      <div class="grid-item file-input">
+        <input
+          type="file"
+          id="productImage{{i}}"
+          accept="image/*"
+          (change)="onFileChange($event, i)"
+          #fileInput
+        />
+      </div>
+
+      <!-- Columna 2: Previsualización (si existe) -->
+      <div class="grid-item preview" *ngIf="previews[i]">
+        <div class="preview-container">
+          <img [src]="previews[i]" alt="Vista previa" />
+          <button
+            type="button"
+            class="delete-button"
+            (click)="removeSelectedImage(i)"
+          >
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Columna 3: Botón de subir -->
+      <div class="grid-item upload-button">
+        <button
+          pButton
+          label="Subir"
+          icon="pi pi-upload"
+          class="p-button-secondary"
+          (click)="uploadProductImage(i)"
+          [disabled]="uploading || !selectedFiles[i]"
+        ></button>
+      </div>
+    </div>
+
+
+    <div class="flex justify-content-center">
+      <p-button label="Cerrar" severity="success" (click)="hideProductDialog()" />
+
+  </div>
+  </p-dialog>
+
+</div>
 
