@@ -21,11 +21,16 @@ import { CarouselModule } from 'primeng/carousel';
 import { TagModule } from 'primeng/tag';
 import { SidebarModule} from 'primeng/sidebar';
 import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { Participante } from '../../interfaces/participante';
+import { ParticipanteService } from '../../services/participante.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, ToolbarModule ,ReactiveFormsModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TableModule,
-    CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule ],
+    CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule, ToastModule ],
+    providers: [MessageService],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -75,7 +80,7 @@ export class DashboardComponent implements OnInit {
   ];
 
 
-
+participantes: Participante[] = [];
 
   codigoVip: string = '';
   cantidadRifas: number = 0;
@@ -113,7 +118,10 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthenticationService,private cdRef: ChangeDetectorRef,
     private router:Router,
-    private raffleService: RaffleService, ){ }
+    private raffleService: RaffleService,
+    private messageService: MessageService,
+    private participanteService: ParticipanteService
+  ){ }
 
   ngOnInit(): void {
     this.loadUserId()
@@ -248,8 +256,19 @@ private asignarCodigoVip(cantidadRifas: number): void {
   }
 }
 
+/*
+deleteRaffle0(raffle: Raffle): void {
+  // Verifica si la rifa tiene participantes reservados
+  if (this.participantes && this.participantes.length > 0) {
+    Swal.fire({
+      title: 'No se puede eliminar la rifa',
+      text: 'Esta rifa tiene participantes reservados. Elimine primero los participantes asociados.',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+    return;
+  }
 
-deleteRaffle(raffle: Raffle): void {
   Swal.fire({
     title: '¿Estás seguro?',
     text: 'Esta acción no se puede deshacer.',
@@ -313,6 +332,126 @@ deleteRaffle(raffle: Raffle): void {
 
 }
 
+deleteRaffle1(raffle: Raffle): void {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción eliminará la rifa. ¡No podrás recuperarla!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Llamamos al servicio para eliminar la rifa sin preocuparse por las imágenes
+      this.raffleService.deleteRaffle(raffle.id!).subscribe({
+        next: () => {
+          console.log('Rifa eliminada con éxito');
+          // Actualiza la lista de rifas eliminando la eliminada
+          this.activeRaffles = this.activeRaffles.filter(r => r.id !== raffle.id);
+          Swal.fire({
+            title: '¡Eliminada!',
+            text: 'La rifa ha sido eliminada correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+        },
+        error: (error) => {
+          console.error('Error al eliminar la rifa:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo eliminar la rifa.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      });
+    }
+  });
+}*/
+
+deleteRaffle(raffle: Raffle): void {
+  // Primero, consulta al API para obtener participantes asociados a la rifa actual
+  this.participanteService.getParticipantesByRaffleId(raffle.id!).subscribe({
+    next: (participants) => {
+      if (participants && participants.length > 0) {
+        // Si existen participantes, no se permite eliminar la rifa
+        Swal.fire({
+          title: 'No se puede eliminar la rifa',
+          text: 'Esta rifa tiene participantes reservados. Elimine primero los participantes asociados.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+        return;
+      } else {
+        // Si no hay participantes, se muestra confirmación para eliminar la rifa
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Esta acción no se puede deshacer.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Primero eliminamos las imágenes
+            const imageDeletions = raffle.producto.imagenes.map(imageUrl => {
+              const imageName = imageUrl.split('/').pop(); // Extraemos el nombre de la imagen
+              return this.raffleService.deleteImage(imageName!);
+            });
+
+            forkJoin(imageDeletions).subscribe({
+              next: () => {
+                // Luego, eliminamos la rifa
+                this.raffleService.deleteRaffle(raffle.id!).subscribe({
+                  next: () => {
+                    console.log('Rifa eliminada con éxito');
+                    // Actualizar las listas locales
+                    this.activeRaffles = this.activeRaffles.filter(r => r.id !== raffle.id);
+                    this.completedRaffles = this.completedRaffles.filter(r => r.id !== raffle.id);
+                    this.loadUserRaffles();
+                    Swal.fire({
+                      title: '¡Eliminada!',
+                      text: 'La rifa ha sido eliminada correctamente.',
+                      icon: 'success',
+                      confirmButtonText: 'Aceptar',
+                    });
+                  },
+                  error: (error) => {
+                    console.error('Error al eliminar la rifa:', error);
+                    Swal.fire({
+                      title: 'Error',
+                      text: 'No se pudo eliminar la rifa.',
+                      icon: 'error',
+                      confirmButtonText: 'Aceptar',
+                    });
+                  }
+                });
+              },
+              error: (error) => {
+                console.error('Error al eliminar las imágenes:', error);
+                Swal.fire({
+                  title: 'Error',
+                  text: 'No se pudo eliminar las imágenes.',
+                  icon: 'error',
+                  confirmButtonText: 'Aceptar',
+                });
+              }
+            });
+          }
+        });
+      }
+    },
+    error: (err) => {
+      console.error('Error al verificar participantes:', err);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo verificar los participantes asociados a la rifa.',
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+      });
+    }
+  });
+}
 
 actualizarEstadoUsuario(): void {
   this.raffleService.getRafflesByUser(this.userId).subscribe({
@@ -364,6 +503,12 @@ updateRafflesByStatus(): void {
 }
 
 
+
+
+compartirRifa(raffle: any) {
+  this.router.navigate(['/datos-rifa', raffle.id], { state: { raffle } });
+}
+
   showDialog(): void {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const cantidadRifasPermitidas = currentUser.cantidadRifas || 1; // Si no hay un valor, se asume 1 como mínimo
@@ -406,14 +551,13 @@ updateRafflesByStatus(): void {
   }
 
   // Ocultar modal de producto
-  hideProductDialog1() {
+  hideProductDialog() {
     this.displayProductDialog = false;
     this.displayDialog1 = false;
   }
 
-  hideProductDialog(): void {
-    this.displayProductDialog = false;
-    this.displayDialog1 = false;
+  hideProductDialog1(): void {
+
     this.subida = false
     // Reinicia los arrays para que al volver a abrir se muestren inputs vacíos
     this.selectedFiles = [];
@@ -441,11 +585,9 @@ updateRafflesByStatus(): void {
     }
   }
 
-  onFileChange1(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
-  }
 
-  onFileChange(event: any, index: number): void {
+
+  onFileChange0(event: any, index: number): void {
     const file: File = event.target.files[0];
     if (!file) {
       return;
@@ -461,6 +603,68 @@ updateRafflesByStatus(): void {
     reader.readAsDataURL(file);
   }
 
+//Este es para controlar la calidad de las imagenes
+  onFileChange(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        const maxWidth = 1024;  // Cambia esto al valor que desees
+        const maxHeight = 1024; // Cambia esto al valor que desees
+
+        if (img.width > maxWidth || img.height > maxHeight) {
+        //  alert(`La imagen supera la resolución permitida de ${maxWidth}x${maxHeight}px`);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'File Uploaded',
+            detail: `La imagen supera la resolución permitida de ${maxWidth}x${maxHeight}px`
+          });
+          input.value = ""; // Resetea el input para que el usuario pueda elegir otra imagen
+        } else {
+          this.selectedFiles[index] = file;
+
+          // Leer la imagen para la vista previa
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.previews[index] = e.target?.result as string;
+          };
+          reader.readAsDataURL(file);
+        }
+
+        URL.revokeObjectURL(img.src); // Liberar memoria
+      };
+    }
+  }
+
+
+  //Este es para controlar el peso de las imagenes
+  onFileChange1(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      const maxSizeInBytes = 2 * 1024 * 1024; // 2MB en bytes
+
+      if (file.size > maxSizeInBytes) {
+        alert("La imagen supera el límite de 2MB. Por favor, selecciona una más ligera.");
+        input.value = ""; // Resetea el input para que el usuario pueda elegir otra imagen
+        return;
+      }
+
+      // Si la imagen es válida, se guarda y se genera la previsualización
+      this.selectedFiles[index] = file;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previews[index] = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
 
   removeSelectedImage(index: number): void {
     this.selectedFiles[index] = null;
@@ -469,7 +673,10 @@ updateRafflesByStatus(): void {
       this.fileInputs.forEach(input => input.nativeElement.value = '');
     }
   }
-
+  clearFile(index: number): void {
+    this.previews[index] = null;
+    this.selectedFiles[index] = null;
+  }
 
   shareOnWhatsApp(): void {
     const url = 'www.metroapp.site';

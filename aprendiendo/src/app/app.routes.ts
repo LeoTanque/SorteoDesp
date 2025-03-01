@@ -7,6 +7,7 @@ import { ListaComponent } from './componentes/lista/lista.component';
 import { RegisterComponent } from './componentes/register/register.component';
 import { SorteoComponent } from './componentes/sorteo/sorteo.component';
 import { CodigosVipComponent } from './componentes/codigos-vip/codigos-vip.component';
+import { DatosRifaComponent } from './componentes/datos-rifa/datos-rifa.component';
 
 export const routes: Routes = [
   {path:'',component:LoginComponent, canActivate: [AuthGuardLogin]},
@@ -16,5 +17,6 @@ export const routes: Routes = [
   {path:'register', component:RegisterComponent},
   {path:'sorteo', component:SorteoComponent},
   {path:'codigos', component:CodigosVipComponent},
+  { path: 'datos-rifa/:id', component: DatosRifaComponent },
   { path: '**', redirectTo: '' }
 ];

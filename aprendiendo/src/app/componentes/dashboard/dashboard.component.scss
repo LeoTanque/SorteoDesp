@@ -171,3 +171,35 @@ p{
   padding: 0;
 }
 
+
+/* Ocultar el input file real */
+.file-input input[type="file"] {
+  display: none;
+}
+
+/* Estilo del botón que reemplaza al input file */
+.custom-file-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #007ad9;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Efecto hover */
+.custom-file-upload:hover {
+  background: #005fa3;
+}
+
+/* Icono */
+.custom-file-upload i {
+  font-size: 18px;
+}

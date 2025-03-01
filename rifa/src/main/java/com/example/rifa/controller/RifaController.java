@@ -57,12 +57,23 @@ public class RifaController {
         return ResponseEntity.ok(rifa);
     }
 
-    @DeleteMapping("/{id}")
+    /*@DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarRifa(@PathVariable Long id) {
         rifaService.eliminarRifa(id);
         return ResponseEntity.noContent().build();
-    }
+    }*/
 
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarRifa(@PathVariable Long id) {
+        try {
+            rifaService.eliminarRifa(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            // Devuelve un 409 Conflict si la rifa tiene participantes
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
 
 
     // Endpoint para obtener rifas por ID de usuario

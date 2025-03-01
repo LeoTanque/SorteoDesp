@@ -21,7 +21,7 @@ export class AppComponent {
 
         const currentUrl = this.router.url;
         // Oculta el navbar si la ruta es exactamente '/' o empieza con '/admin'
-        this.shouldShowToolbar = !(currentUrl === '/' || currentUrl.startsWith('/codigos'));
+        this.shouldShowToolbar = !(currentUrl === '/' || currentUrl.startsWith('/codigos') || currentUrl.startsWith('/datos-rifa'));
         //this.shouldShowToolbar = !['/'].includes(this.router.url);
       }
     });

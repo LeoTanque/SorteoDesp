@@ -1,10 +1,12 @@
 package com.example.rifa.services;
 
 import com.example.rifa.entity.CodigoVip;
+import com.example.rifa.entity.Participante;
 import com.example.rifa.entity.Rifa;
 import com.example.rifa.entity.Usuario;
 import com.example.rifa.exception.ResourceNotFoundException;
 import com.example.rifa.repository.CodigoVipRepository;
+import com.example.rifa.repository.ParticipanteRepository;
 import com.example.rifa.repository.RifaRepository;
 import com.example.rifa.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,8 @@ public class RifaService {
     }
 
 
-
+    @Autowired
+    private ParticipanteRepository participanteRepository;
     public Rifa crearRifa1(Rifa rifa, String codigoVip) {
         // Verificar si el usuario existe
         Usuario usuario = usuarioRepository.findById(rifa.getUsuario().getId())
@@ -167,9 +170,27 @@ public class RifaService {
         return rifaRepository.save(rifaExistente);
     }
 
-    public void eliminarRifa(Long id) {
+   /* public void eliminarRifa(Long id) {
         Rifa rifa = rifaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rifa no encontrada con ID: " + id));
+        // Verifica si existen participantes asociados a esta rifa
+
+        rifaRepository.delete(rifa);
+    }*/ 
+
+    public void eliminarRifa(Long id) {
+        // Buscar la rifa por ID
+        Rifa rifa = rifaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rifa no encontrada con ID: " + id));
+
+        // Verificar si existen participantes asociados a esta rifa
+        List<Participante> participantes = participanteRepository.findByRaffleId(id);
+        if (!participantes.isEmpty()) {
+            // No se permite eliminar la rifa si tiene participantes reservados
+            throw new IllegalArgumentException("No se puede eliminar la rifa porque tiene participantes reservados. Elimine los participantes primero.");
+        }
+
+        // Si no hay participantes, eliminar la rifa (esto eliminará también el producto asociado gracias a cascade)
         rifaRepository.delete(rifa);
     }
 

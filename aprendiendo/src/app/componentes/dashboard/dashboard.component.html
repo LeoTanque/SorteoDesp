@@ -34,7 +34,7 @@
 
 
           <div class="flex gap-2">
-            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm"></button>
+            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm" (click)="compartirRifa(raffle)" ></button>
             <button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></button>
             <button pButton type="button" label="Eliminar" class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
           </div>
@@ -229,8 +229,19 @@
     </!--div-->
 
     <div *ngFor="let slot of [0,1,2]; let i = index" class="upload-slot-grid mb-3">
-      <!-- Columna 1: Input file -->
+
       <div class="grid-item file-input">
+        <p-toast />
+        <!--input
+          type="file"
+          id="productImage{{i}}"
+          accept="image/*"
+          (change)="onFileChange($event, i)"
+          #fileInput
+        /-->
+        <label for="productImage{{i}}" class="custom-file-upload">
+          <i class="pi pi-upload"></i> Seleccionar Imagen
+        </label>
         <input
           type="file"
           id="productImage{{i}}"
@@ -238,9 +249,11 @@
           (change)="onFileChange($event, i)"
           #fileInput
         />
+
+
       </div>
 
-      <!-- Columna 2: Previsualización (si existe) -->
+
       <div class="grid-item preview" *ngIf="previews[i]">
         <div class="preview-container">
           <img [src]="previews[i]" alt="Vista previa" />
@@ -254,7 +267,7 @@
         </div>
       </div>
 
-      <!-- Columna 3: Botón de subir -->
+
       <div class="grid-item upload-button">
         <button
           pButton
@@ -269,7 +282,7 @@
 
 
     <div class="flex justify-content-center">
-      <p-button label="Cerrar" severity="success" (click)="hideProductDialog()" />
+      <p-button label="Cerrar" severity="contrast" (click)="hideProductDialog1()" />
 
   </div>
   </p-dialog>
