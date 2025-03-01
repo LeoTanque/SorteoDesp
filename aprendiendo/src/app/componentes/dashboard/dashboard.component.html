@@ -34,9 +34,11 @@
 
 
           <div class="flex gap-2">
-            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm" (click)="compartirRifa(raffle)" ></button>
-            <button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></button>
+            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm"  (click)="shareOnWhatsApp()" ></button>
+            <!--button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></!--button-->
+            <button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="compartirRifa(raffle)"></button>
             <button pButton type="button" label="Eliminar" class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
+
           </div>
         </div>
       </div>
