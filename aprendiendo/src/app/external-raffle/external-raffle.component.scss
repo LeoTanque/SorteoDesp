@@ -40,7 +40,7 @@
 
 
 .scroll-container {
-  max-height: 800px; /* Altura máxima del contenedor */
+  max-height: 600px; /* Altura máxima del contenedor */
   overflow-y: auto; /* Habilita el scroll vertical */
   border: 1px solid #ddd; /* Opcional: bordes para visualización */
   border-radius: 10px;
@@ -98,11 +98,19 @@ button.reserved {
   cursor: not-allowed;
 }
 
+.error {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 2px;
+  display: block;
+}
+
 /* Ajustes para pantallas pequeñas */
 @media (max-width: 350px) {
   .number-grid {
     grid-template-columns: repeat(4, 1fr); /* 4 columnas en pantallas pequeñas */
   }
+
 }
 
 @media (max-width: 255px) {

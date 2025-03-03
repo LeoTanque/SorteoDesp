@@ -6,6 +6,8 @@
 @import "primeng/resources/primeng.css";
 @import "primeicons/primeicons.css";
 
+
+
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;
@@ -23,3 +25,39 @@
 body {
   font-family: 'Montserrat', sans-serif;
 }
+
+
+/* Estilos por defecto (Modo Claro) */
+/* Estilos por defecto (Modo Claro) */
+body {
+  background-color: #fafafa;
+  color: #212121;
+}
+
+/* Estilos para el Modo Oscuro */
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+/* Asegurar que todos los textos sean legibles en Modo Oscuro */
+body.dark-mode .p-component,
+body.dark-mode .p-inputtext,
+body.dark-mode .p-dropdown,
+body.dark-mode .p-button,
+body.dark-mode .p-panel,
+body.dark-mode .p-card,
+body.dark-mode .p-dialog {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+/* Ajustar enlaces y otros elementos */
+body.dark-mode a {
+  color: #bb86fc;
+}
+
+body.dark-mode .p-menuitem-link {
+  color: #ffffff;
+}
+

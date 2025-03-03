@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { AuthenticationService } from '../../services/authentication.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
@@ -53,7 +53,8 @@ export class DashboardComponent implements OnInit {
     producto: {
       nombre: '',
       descripcion: '',
-      imagenes: []
+      imagenes: [],
+
     },
     // Asigna el producto seleccionado aquí
     active: true
@@ -81,8 +82,10 @@ export class DashboardComponent implements OnInit {
 
 
 participantes: Participante[] = [];
-
+numerosReservados: number[] = [];
+raffleId: any | null = null;
   codigoVip: string = '';
+  raffle: Raffle | null = null;
   cantidadRifas: number = 0;
   isVip!: boolean | null;
   tieneRifa!: boolean;
@@ -114,18 +117,23 @@ participantes: Participante[] = [];
   subscription!: Subscription;
 
   sidebarVisible: boolean = false;
+  datosParticipantes: boolean = false;
 
   constructor(
     private authService: AuthenticationService,private cdRef: ChangeDetectorRef,
     private router:Router,
     private raffleService: RaffleService,
     private messageService: MessageService,
-    private participanteService: ParticipanteService
+    private participanteService: ParticipanteService,
+    private route: ActivatedRoute
   ){ }
 
   ngOnInit(): void {
     this.loadUserId()
 
+
+
+   this.loadAllParticipantes();
 
   }
 
@@ -256,120 +264,9 @@ private asignarCodigoVip(cantidadRifas: number): void {
   }
 }
 
-/*
+
+
 deleteRaffle0(raffle: Raffle): void {
-  // Verifica si la rifa tiene participantes reservados
-  if (this.participantes && this.participantes.length > 0) {
-    Swal.fire({
-      title: 'No se puede eliminar la rifa',
-      text: 'Esta rifa tiene participantes reservados. Elimine primero los participantes asociados.',
-      icon: 'error',
-      confirmButtonText: 'Aceptar'
-    });
-    return;
-  }
-
-  Swal.fire({
-    title: '¿Estás seguro?',
-    text: 'Esta acción no se puede deshacer.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Primero eliminamos las imágenes
-      const imageDeletions = raffle.producto.imagenes.map(imageUrl => {
-        const imageName = imageUrl.split('/').pop(); // Extraemos el nombre de la imagen
-        return this.raffleService.deleteImage(imageName!); // Llamada para eliminar la imagen
-      });
-
-      // Luego, eliminamos la rifa
-      forkJoin(imageDeletions).subscribe({
-        next: () => {
-          this.raffleService.deleteRaffle(raffle.id!).subscribe({
-            next: () => {
-              console.log('Rifa eliminada con éxito');
-              this.activeRaffles = this.activeRaffles.filter(r => r.id !== raffle.id);
-              this.completedRaffles = this.completedRaffles.filter(r => r.id !== raffle.id)
-              // 🔄 Actualizar la base de datos y localStorage
-              //this.actualizarEstadoUsuario();
-              this.loadUserRaffles();
-              Swal.fire({
-                title: '¡Eliminada!',
-                text: 'La rifa ha sido eliminada correctamente.',
-                icon: 'success',
-                confirmButtonText: 'Aceptar',
-              });
-
-            },
-            error: (error) => {
-              console.error('Error al eliminar la rifa:', error);
-              Swal.fire({
-                title: 'Error',
-                text: 'No se pudo eliminar la rifa.',
-                icon: 'error',
-                confirmButtonText: 'Aceptar',
-              });
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Error al eliminar las imágenes:', error);
-          Swal.fire({
-            title: 'Error',
-            text: 'No se pudo eliminar las imágenes.',
-            icon: 'error',
-            confirmButtonText: 'Aceptar',
-          });
-        }
-      });
-
-
-    }
-
-  });
-
-}
-
-deleteRaffle1(raffle: Raffle): void {
-  Swal.fire({
-    title: '¿Estás seguro?',
-    text: 'Esta acción eliminará la rifa. ¡No podrás recuperarla!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Llamamos al servicio para eliminar la rifa sin preocuparse por las imágenes
-      this.raffleService.deleteRaffle(raffle.id!).subscribe({
-        next: () => {
-          console.log('Rifa eliminada con éxito');
-          // Actualiza la lista de rifas eliminando la eliminada
-          this.activeRaffles = this.activeRaffles.filter(r => r.id !== raffle.id);
-          Swal.fire({
-            title: '¡Eliminada!',
-            text: 'La rifa ha sido eliminada correctamente.',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-          });
-        },
-        error: (error) => {
-          console.error('Error al eliminar la rifa:', error);
-          Swal.fire({
-            title: 'Error',
-            text: 'No se pudo eliminar la rifa.',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-          });
-        }
-      });
-    }
-  });
-}*/
-
-deleteRaffle(raffle: Raffle): void {
   // Primero, consulta al API para obtener participantes asociados a la rifa actual
   this.participanteService.getParticipantesByRaffleId(raffle.id!).subscribe({
     next: (participants) => {
@@ -453,6 +350,63 @@ deleteRaffle(raffle: Raffle): void {
   });
 }
 
+deleteRaffle(raffle: Raffle): void {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción eliminará la rifa y todos los datos relacionados (participantes, números reservados, imágenes). Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Primero eliminamos las imágenes (opcional, si ya se quiere borrar manualmente)
+      const imageDeletions = raffle.producto.imagenes.map(imageUrl => {
+        const imageName = imageUrl.split('/').pop(); // Extrae el nombre de la imagen
+        return this.raffleService.deleteImage(imageName!);
+      });
+
+      forkJoin(imageDeletions).subscribe({
+        next: () => {
+          // Luego, eliminamos la rifa (y el backend se encargará de eliminar los participantes)
+          this.raffleService.deleteRaffle(raffle.id!).subscribe({
+            next: () => {
+              console.log('Rifa eliminada con éxito');
+              this.activeRaffles = this.activeRaffles.filter(r => r.id !== raffle.id);
+              this.completedRaffles = this.completedRaffles.filter(r => r.id !== raffle.id);
+              this.loadUserRaffles();
+              Swal.fire({
+                title: '¡Eliminada!',
+                text: 'La rifa y todos los datos relacionados han sido eliminados correctamente.',
+                icon: 'success',
+                confirmButtonText: 'Aceptar',
+              });
+            },
+            error: (error) => {
+              console.error('Error al eliminar la rifa:', error);
+              Swal.fire({
+                title: 'Error',
+                text: 'No se pudo eliminar la rifa.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+              });
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error al eliminar las imágenes:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo eliminar las imágenes.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+          });
+        }
+      });
+    }
+  });
+}
+
 actualizarEstadoUsuario(): void {
   this.raffleService.getRafflesByUser(this.userId).subscribe({
     next: (rifas: Raffle[]) => {
@@ -480,19 +434,67 @@ actualizarEstadoUsuario(): void {
 
 
 
+
+copyToClipboard(code: string) {
+  navigator.clipboard.writeText(code).then(() => {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Copiado',
+      detail: `Código ${code} copiado al portapapeles`,
+      life: 1000
+    });
+  }).catch(err => {
+    console.error('Error al copiar: ', err);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'No se pudo copiar el código',
+      life: 3000
+    });
+  });
+}
+
+
 executeRaffle(event: Event, raffle: Raffle): void {
   event.stopPropagation();
-  raffle.active = false;
-  this.raffleService.updateRaffle(raffle.id!, raffle).subscribe(
-    (updatedRaffle) => {
-      console.log('Rifa ejecutada:', updatedRaffle);
-      this.updateRafflesByStatus();
-    },
-    (error) => {
-      console.error('Error al ejecutar la rifa:', error);
+  Swal.fire({
+    title: '¿Ejecutar rifa?',
+    text: 'Esta acción ejecutará el sorteo y desactivará la rifa. ¿Desea continuar?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, ejecutar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      raffle.active = false;
+      this.raffleService.updateRaffle(raffle.id!, raffle).subscribe({
+        next: (updatedRaffle) => {
+          console.log('Rifa ejecutada:', updatedRaffle);
+          Swal.fire({
+            title: 'Ejecutada!',
+            text: 'La rifa ha sido ejecutada correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+          this.updateRafflesByStatus();
+        },
+        error: (error) => {
+          console.error('Error al ejecutar la rifa:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo ejecutar la rifa. Por favor, inténtelo de nuevo.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      });
     }
-  );
+  });
 }
+
+
+
+
 
 updateRafflesByStatus(): void {
   console.log('Datos de userRaffles:', this.userRaffles);
@@ -505,9 +507,14 @@ updateRafflesByStatus(): void {
 
 
 
-compartirRifa(raffle: any) {
+compartirRifa1(raffle: any) {
   this.router.navigate(['/datos-rifa', raffle.id], { state: { raffle } });
 }
+
+compartirRifa(raffle: any) {
+  this.router.navigate(['/external-raffle', raffle.id], { state: { raffle } });
+}
+
 
   showDialog(): void {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -579,29 +586,9 @@ compartirRifa(raffle: any) {
     }
 
 
-  onFileSelected(event: any): void {
-    if (event.target.files) {
-      this.selectedFiles = Array.from(event.target.files); // Convertir FileList a Array
-    }
-  }
 
 
 
-  onFileChange0(event: any, index: number): void {
-    const file: File = event.target.files[0];
-    if (!file) {
-      return;
-    }
-    // Guarda el archivo en la posición correspondiente
-    this.selectedFiles[index] = file;
-
-    // Genera la previsualización con FileReader
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.previews[index] = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
 
 //Este es para controlar la calidad de las imagenes
   onFileChange(event: Event, index: number) {
@@ -620,7 +607,9 @@ compartirRifa(raffle: any) {
           this.messageService.add({
             severity: 'error',
             summary: 'File Uploaded',
-            detail: `La imagen supera la resolución permitida de ${maxWidth}x${maxHeight}px`
+            detail: `La imagen supera la resolución permitida de ${maxWidth}x${maxHeight}px`,
+            life: 1000
+
           });
           input.value = ""; // Resetea el input para que el usuario pueda elegir otra imagen
         } else {
@@ -640,30 +629,7 @@ compartirRifa(raffle: any) {
   }
 
 
-  //Este es para controlar el peso de las imagenes
-  onFileChange1(event: Event, index: number) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
 
-      const maxSizeInBytes = 2 * 1024 * 1024; // 2MB en bytes
-
-      if (file.size > maxSizeInBytes) {
-        alert("La imagen supera el límite de 2MB. Por favor, selecciona una más ligera.");
-        input.value = ""; // Resetea el input para que el usuario pueda elegir otra imagen
-        return;
-      }
-
-      // Si la imagen es válida, se guarda y se genera la previsualización
-      this.selectedFiles[index] = file;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.previews[index] = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
 
 
   removeSelectedImage(index: number): void {
@@ -724,6 +690,7 @@ onSubmit(): void {
       imagenes: this.productData.imagenes,
     },
     active: true,
+    code: this.newRaffle.code
   };
 
   console.log('Cuerpo de la solicitud:', requestBody);
@@ -811,19 +778,7 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
     );
   }
 
-  isValid1(): boolean {
-    if (!this.productData.nombre || this.productData.nombre.trim() === '') {
-      console.error('El nombre del producto es obligatorio.');
-      return false;
-    }
 
-    if (this.descripcionInvalida) {
-      console.error('La descripción supera los 1500 caracteres.');
-      return false;
-    }
-
-    return true;
-  }
 
   hideDialog(): void {
     this.displayDialog = false;
@@ -880,7 +835,7 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
       }
 
 
-      uploadProductImage(index: number): void {
+      uploadProductImage0(index: number): void {
         if (!this.selectedFiles[index]) {
           console.warn(`No hay imagen para subir en el slot ${index}.`);
           return;
@@ -903,6 +858,95 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
           error: (error) => {
             console.error(`Error al subir la imagen del slot ${index}:`, error);
             this.uploading = false;
+          }
+        });
+      }
+
+
+      uploadProductImage(index: number): void {
+        const file = this.selectedFiles[index];
+
+        if (!file) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Advertencia',
+            detail: `No hay imagen para subir en el slot ${index}.`,
+            life: 1000
+          });
+          return;
+        }
+
+        this.uploading = true;
+
+        this.raffleService.uploadImages([file]).subscribe({
+          next: (uploadedUrls: string[]) => {
+            this.productData.imagenes.push(...uploadedUrls);
+
+            // Limpia el slot una vez subida la imagen
+            this.selectedFiles[index] = null;
+            this.previews[index] = null;
+            this.uploading = false;
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: `Imagen subida correctamente en el slot ${index}.`,
+              life: 1000
+            });
+          },
+          error: (error) => {
+            this.uploading = false;
+
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Error al subir la imagen en el slot ${index}.`,
+              life: 1000
+            });
+          }
+        });
+      }
+
+
+
+
+      loadAllParticipantes() {
+        // Limpia los arrays antes de cargar los participantes
+        this.participantes = [];
+        this.numerosReservados = [];
+        this.participanteService.getAllParticipantes().subscribe({
+          next: (data) => {
+            this.participantes = data;
+            console.log('Participantes:', this.participantes);
+
+            // Agrupar participantes por raffleId
+            const participantesPorRifa = this.participantes.reduce((grupo, participante) => {
+              const id = participante.raffleId;
+              if (!grupo[id]) {
+                grupo[id] = [];
+              }
+              grupo[id].push(participante);
+              return grupo;
+            }, {} as { [key: number]: Participante[] });
+
+            // Imprimir en consola los participantes agrupados por rifa
+            for (const raffleId in participantesPorRifa) {
+              console.log(`Participantes para la rifa ${raffleId}:`, participantesPorRifa[raffleId]);
+            }
+          },
+          error: (err) => console.error('Error al cargar participantes:', err)
+        });
+      }
+
+      mostrarParticipantes(raffleId: number): void {
+        this.participanteService.getParticipantesByRaffleId(raffleId).subscribe({
+          next: (data) => {
+            this.participantes = data;
+            console.log(`Participantes para la rifa ${raffleId}:`, this.participantes);
+            this.datosParticipantes = true;  // Abre el modal
+          },
+          error: (err) => {
+            console.error(`Error al cargar participantes para la rifa ${raffleId}:`, err);
           }
         });
       }

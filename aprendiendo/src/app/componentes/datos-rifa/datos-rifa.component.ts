@@ -103,16 +103,7 @@ export class DatosRifaComponent implements OnInit {
 
   }
 
-  cargarRifa1(){
-    this.raffle = history.state.raffle;
-    console.log('Datos de la rifa seleccionada:', this.raffle);
 
-    // Si la rifa existe y tiene la propiedad 'cantidadParticipantes', generamos la grid de números
-    if (this.raffle && this.raffle.cantidadParticipantes) {
-      this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
-    }
-
-  }
 
   cargarRifa() {
     this.raffle = history.state.raffle;

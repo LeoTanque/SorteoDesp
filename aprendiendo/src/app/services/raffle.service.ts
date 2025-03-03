@@ -136,4 +136,13 @@ export class RaffleService {
   }
 
 
+
+  obtenerRifaPorId(id: number): Observable<Raffle> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.get<Raffle>(url).pipe(
+      catchError((error) => this.handleError(error))
+    );
+  }
+
+
 }

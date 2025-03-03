@@ -23,7 +23,8 @@ public class Rifa {
     private Producto producto;
 
     private boolean isActive = true;
-
+    // Nuevo campo code
+    private String code;
 
 
     public Long getId() {
@@ -82,5 +83,11 @@ public class Rifa {
         isActive = active;
     }
 
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
 
 }

@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class RifaService {
@@ -33,6 +34,7 @@ public class RifaService {
 
     @Autowired
     private ParticipanteRepository participanteRepository;
+
     public Rifa crearRifa1(Rifa rifa, String codigoVip) {
         // Verificar si el usuario existe
         Usuario usuario = usuarioRepository.findById(rifa.getUsuario().getId())
@@ -89,7 +91,7 @@ public class RifaService {
         }
     }
 
-    public Rifa crearRifa(Rifa rifa, String codigoVip) {
+   /* public Rifa crearRifa(Rifa rifa, String codigoVip) {
         // Verificar si el usuario existe
         Usuario usuario = usuarioRepository.findById(rifa.getUsuario().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + rifa.getUsuario().getId()));
@@ -143,9 +145,59 @@ public class RifaService {
         rifa.setUsuario(usuario);
         rifa.setActive(true);
         return rifaRepository.save(rifa);
+    }*/
+
+    public Rifa crearRifa(Rifa rifa, String codigoVip) {
+        // Verificar si el usuario existe
+        Usuario usuario = usuarioRepository.findById(rifa.getUsuario().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + rifa.getUsuario().getId()));
+
+        // Manejo del código VIP (tu lógica actual)
+        if (codigoVip != null) {
+            if (!usuario.isEsVip()) {
+                CodigoVip codigo = codigoVipRepository.findByCodigo(codigoVip)
+                        .orElseThrow(() -> new IllegalArgumentException("Código VIP no válido."));
+                if (codigo.isUtilizado()) {
+                    throw new IllegalArgumentException("El código VIP ya fue utilizado.");
+                }
+                usuario.setEsVip(true);
+                usuario.setCodigoVip(codigoVip);
+                usuarioRepository.save(usuario);
+                codigo.setUtilizado(true);
+                codigoVipRepository.save(codigo);
+            } else if (!usuario.getCodigoVip().equals(codigoVip)) {
+                throw new IllegalArgumentException("El código VIP no corresponde al usuario.");
+            }
+        }
+
+        // Genera automáticamente el código de la rifa si no se proporcionó uno
+        if (rifa.getCode() == null || rifa.getCode().trim().isEmpty()) {
+            rifa.setCode(generateRaffleCode());
+        }
+
+        // Verificar límites de rifas, etc. (tu lógica actual)
+        int limiteRifas = usuario.isEsVip() ?
+                codigoVipRepository.findByCodigo(usuario.getCodigoVip())
+                        .map(CodigoVip::getCantidadRifas)
+                        .orElse(Integer.MAX_VALUE)
+                : 1;
+        long rifasCreadas = usuario.isEsVip() ? rifaRepository.countByUsuario(usuario)
+                : rifaRepository.countByUsuarioAndFechaSorteoBetween(usuario, LocalDate.now().withDayOfMonth(1), LocalDate.now().plusMonths(1).minusDays(1));
+        if (rifasCreadas >= limiteRifas) {
+            throw new IllegalArgumentException("Has alcanzado el límite de rifas permitidas.");
+        }
+
+        // Asignar el usuario y activar la rifa
+        rifa.setUsuario(usuario);
+        rifa.setActive(true);
+        return rifaRepository.save(rifa);
     }
 
-
+    // Método auxiliar para generar un código único para la rifa
+    private String generateRaffleCode() {
+        // Por ejemplo, "R-" seguido de 4 caracteres del UUID
+        return "R-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+    }
 
     public Rifa obtenerRifaPorId(Long id) {
         return rifaRepository.findById(id)
@@ -178,7 +230,7 @@ public class RifaService {
         rifaRepository.delete(rifa);
     }*/ 
 
-    public void eliminarRifa(Long id) {
+    /*public void eliminarRifa(Long id) {
         // Buscar la rifa por ID
         Rifa rifa = rifaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rifa no encontrada con ID: " + id));
@@ -191,6 +243,21 @@ public class RifaService {
         }
 
         // Si no hay participantes, eliminar la rifa (esto eliminará también el producto asociado gracias a cascade)
+        rifaRepository.delete(rifa);
+    }*/
+
+    public void eliminarRifa(Long id) {
+        // Buscar la rifa por ID
+        Rifa rifa = rifaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rifa no encontrada con ID: " + id));
+
+        // Eliminar todos los participantes asociados a esta rifa
+        List<Participante> participantes = participanteRepository.findByRaffleId(id);
+        if (!participantes.isEmpty()) {
+            participanteRepository.deleteAll(participantes);
+        }
+
+        // Eliminar la rifa (esto también eliminará el producto asociado si está configurado con CascadeType.ALL)
         rifaRepository.delete(rifa);
     }
 

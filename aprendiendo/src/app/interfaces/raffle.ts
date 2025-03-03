@@ -12,6 +12,7 @@ export interface Raffle {
   producto: Producto;// Producto asociado (obligatorio)
   active: boolean;
   //codigoVip?: string;
+  code?: string;
   codigoVip?: CodigoVip
 
 }

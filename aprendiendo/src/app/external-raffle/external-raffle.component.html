@@ -1,0 +1,141 @@
+<div *ngIf="raffle">
+  <div class="scroll-container">
+    <div class="card">
+      <h2 class="product-name" style="text-align: center; margin-bottom: 1rem;">
+        {{ raffle.producto.nombre }}
+      </h2>
+
+      <!-- Carrusel de imágenes -->
+      <p-carousel
+        [value]="raffle.producto.imagenes"
+        [numVisible]="1"
+        [numScroll]="1"
+        [circular]="true"
+        autoplayInterval="3000"
+        [responsiveOptions]="responsiveOptions">
+        <ng-template let-image pTemplate="item">
+          <div class="image-container">
+            <img [src]="image" alt="{{ raffle.producto.nombre }}" />
+          </div>
+        </ng-template>
+      </p-carousel>
+    </div>
+    <div class="full-width-button">
+      <p-button
+        label="Ver descripción del producto"
+        severity="primary"
+        styleClass="custom-button p-button-lg w-full"
+        (onClick)="showDialog()">
+      </p-button>
+    </div>
+    <div class="number-grid">
+      <button
+        *ngFor="let num of availableNumbers"
+        pButton
+        [label]="num.toString()"
+        class="grid-button"
+        [ngClass]="{'reserved': isReserved(num)}"
+        [disabled]="isReserved(num)"
+        (click)="openModal(num)">
+      </button>
+    </div>
+  </div>
+
+  <!-- Botón para ver la descripción del producto -->
+
+
+  <!-- Grid de números -->
+
+
+  <p-dialog
+  header="Descripción del producto"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [maximizable]="true">
+  <p>{{ raffle.producto.descripcion }}</p>
+</p-dialog>
+<div class="view-participants">
+  <p-button label="Ver participantes" severity="info" (onClick)="mostrarDatosP()"></p-button>
+</div>
+</div>
+
+<!-- Botón para ver participantes -->
+
+
+<!-- Diálogo con la descripción del producto -->
+
+
+<!-- Diálogo con la tabla de participantes -->
+<p-dialog
+  header="Participantes del sorteo"
+  [modal]="true"
+  [(visible)]="datosParticipantes"
+  [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [maximizable]="true">
+  <p-table
+    [value]="participantes"
+    responsiveLayout="scroll"
+    [paginator]="true"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10, 20]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th># Reservado</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-participante let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ participante.name }} {{ participante.lastName }}</td>
+        <td>{{ participante.phone }}</td>
+        <td>{{ participante.reservedNumber }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<!-- Diálogo para reservar un número -->
+<p-dialog
+  [(visible)]="displayModal"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [header]="'Reservar número ' + selectedNumber"
+  (onHide)="closeModal()">
+  <form [formGroup]="reservationForm" (ngSubmit)="saveData()">
+    <div class="modal-content">
+      <input type="text" pInputText placeholder="Nombre" formControlName="name" />
+      <small class="error" *ngIf="isInvalid('name')">El nombre es obligatorio.</small>
+
+      <input type="text" pInputText placeholder="Apellido" formControlName="lastName" />
+      <small class="error" *ngIf="isInvalid('lastName')">El apellido es obligatorio.</small>
+
+      <p-inputMask mask="99-99999999" placeholder="Teléfono" formControlName="phone"></p-inputMask>
+      <small class="error" *ngIf="isInvalid('phone')">
+        <ng-container *ngIf="reservationForm.get('phone')?.hasError('required')">El teléfono es obligatorio.</ng-container>
+        <ng-container *ngIf="reservationForm.get('phone')?.hasError('pattern')">El formato debe ser 99-99999999.</ng-container>
+      </small>
+
+      <input type="text" pInputText placeholder="DNI" formControlName="dni" />
+      <small class="error" *ngIf="isInvalid('dni')">El DNI es obligatorio.</small>
+
+      <input type="text" pInputText placeholder="Código" formControlName="code" />
+      <small class="error" *ngIf="isInvalid('code')">
+        <ng-container *ngIf="reservationForm.get('code')?.hasError('required')">El código es obligatorio.</ng-container>
+        <ng-container *ngIf="reservationForm.get('code')?.hasError('incorrectCode')">Código incorrecto, verifica e intenta de nuevo.</ng-container>
+      </small>
+
+      <input type="text" pInputText formControlName="reservedNumber" />
+    </div>
+    <div class="modal-buttons">
+      <p-button label="Cancelar" (click)="closeModal()" severity="secondary"></p-button>
+      <p-button type="submit" label="Reservar" severity="primary" [disabled]="reservationForm.invalid"></p-button>
+    </div>
+  </form>
+</p-dialog>

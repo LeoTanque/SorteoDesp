@@ -64,7 +64,7 @@ public class RifaController {
     }*/
 
 
-    @DeleteMapping("/{id}")
+   /* @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarRifa(@PathVariable Long id) {
         try {
             rifaService.eliminarRifa(id);
@@ -72,6 +72,19 @@ public class RifaController {
         } catch (IllegalArgumentException e) {
             // Devuelve un 409 Conflict si la rifa tiene participantes
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }*/
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarRifa(@PathVariable Long id) {
+        try {
+            rifaService.eliminarRifa(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            // Puedes devolver 409 Conflict o el error que consideres adecuado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

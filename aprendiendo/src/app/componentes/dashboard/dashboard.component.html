@@ -1,45 +1,77 @@
 <div class="container p-2 bg-light rounded shadow-sm page-dashboard">
+  <p-toast/>
   <div class="grid">
+
 
     <div class="col-6 p-md-6">
       <h3>Rifas Activas</h3>
-      <div *ngFor="let raffle of activeRaffles" class="p-card mb-3">
-        <div class="p-card-body" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px; text-align: center;">
+      <div *ngFor="let raffle of activeRaffles" class="p-card mb-3" style="position: relative;">
+
+
+        <!--div-- class="raffle-code"
+             style="position: absolute; top: 10px; right: 10px; background-color: rgba(0,0,0,0.7);
+                    color: #fff; padding: 4px 8px; border-radius: 5px; font-size: 0.9em; z-index: 10;">
+          {{ raffle.code }}
+        </!--div-->
+
+
+        <button class="raffle-code" *ngIf="raffle.code" (click)="copyToClipboard(raffle.code)">
+          {{ raffle.code }}
+          <i class="pi pi-copy" style="margin-left: 5px;"></i>
+        </button>
+
+
+        <div class="p-card-body"
+             style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px; text-align: center;">
+
           <h5 class="fw-bold">{{ raffle.nombre }}</h5>
           <p>{{ raffle.producto.nombre }}</p>
           <p>{{ raffle.producto.descripcion }}</p>
 
-
           <p-carousel
-          [value]="raffle.producto.imagenes"
-          [numVisible]="1"
-          [numScroll]="1"
-          [circular]="true"
-          [responsiveOptions]="responsiveOptions">
-
-          <ng-template let-image pTemplate="item">
-            <div class="border-1 surface-border border-round m-2 p-3">
-              <div class="relative mx-auto">
-                <img
-                  [src]="image"
-                  alt="Imagen del producto"
-                  class="w-full border-round"
-                  style="max-height: 150px; object-fit: cover;" />
+            [value]="raffle.producto.imagenes"
+            [numVisible]="1"
+            [numScroll]="1"
+            [circular]="true"
+            autoplayInterval="3000"
+            [responsiveOptions]="responsiveOptions">
+            <ng-template let-image pTemplate="item">
+              <div class="border-1 surface-border border-round m-2 p-3">
+                <div class="relative mx-auto">
+                  <img
+                    [src]="image"
+                    alt="Imagen del producto"
+                    class="w-full border-round"
+                    style="max-height: 150px; object-fit: cover;" />
+                </div>
               </div>
+            </ng-template>
+          </p-carousel>
+
+          <!--a-- pButton label="Ejecutar Sorteo" icon="pi pi-play" styleClass="p-button-warning p-button-sm"
+             [href]="'/external-raffle/' + raffle.id" target="_blank"></!--a-->
+
+             <!--a-- pButton label="Link" class="" [href]="'/external-raffle/' + raffle.id" target="_blank">Link</!--a-->
+
+             <a [href]="'/external-raffle/' + raffle.id" target="_blank" rel="noopener noreferrer" class="link">
+              Link al sorteo
+          </a>
 
 
-            </div>
-          </ng-template>
-        </p-carousel>
 
+          <div class="flex gap-2 mt-2">
+            <button pButton type="button" label="Compartir" icon="pi pi-share"
+                    class="p-button-info p-button-sm" (click)="shareOnWhatsApp()"></button>
 
-          <div class="flex gap-2">
-            <button pButton type="button" label="Compartir" icon="pi pi-share" class="p-button-info p-button-sm"  (click)="shareOnWhatsApp()" ></button>
-            <!--button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></!--button-->
-            <button pButton type="button" label="Ejecutar Sorteo" class="p-button-warning p-button-sm" (click)="compartirRifa(raffle)"></button>
-            <button pButton type="button" label="Eliminar" class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
+            <button pButton type="button" label="Ejecutar Sorteo"
+                    class="p-button-warning p-button-sm" (click)="executeRaffle($event, raffle)"></button>
 
+            <button pButton type="button" label="Eliminar"
+                    class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
+
+            <!--button-- pButton type="button" label="Ver Participantes" icon="pi pi-users" class="p-button-secondary p-button-sm" (click)="raffle.id && mostrarParticipantes(raffle.id)"></!--button-->
           </div>
+          <button pButton type="button" label="Ver Participantes" icon="pi pi-users" class="p-button-secondary p-button-sm mt-3" (click)="raffle.id && mostrarParticipantes(raffle.id)"></button>
         </div>
       </div>
     </div>
@@ -48,7 +80,7 @@
     <div class="col-6 p-md-6">
       <h3>Rifas Finalizadas</h3>
       <div *ngFor="let raffle of completedRaffles" class="p-card mb-3">
-        <div class="p-card-body" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px">
+        <div class="p-card-body" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px; text-align: center;">
           <h5 class="fw-bold">{{ raffle.nombre }}</h5>
           <p>{{ raffle.producto.nombre }}</p>
           <p>{{ raffle.producto.descripcion }}</p>
@@ -233,7 +265,7 @@
     <div *ngFor="let slot of [0,1,2]; let i = index" class="upload-slot-grid mb-3">
 
       <div class="grid-item file-input">
-        <p-toast />
+
         <!--input
           type="file"
           id="productImage{{i}}"
@@ -288,6 +320,39 @@
 
   </div>
   </p-dialog>
+
+
+  <p-dialog
+  header="Participantes del sorteo"
+  [modal]="true"
+  [(visible)]="datosParticipantes"
+  [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [maximizable]="true">
+  <p-table
+    [value]="participantes"
+    responsiveLayout="scroll"
+    [paginator]="true"
+    [rows]="5"
+    [rowsPerPageOptions]="[5, 10, 20]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th># Reservado</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-participante let-i="rowIndex">
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ participante.name }} {{ participante.lastName }}</td>
+        <td>{{ participante.phone }}</td>
+        <td>{{ participante.reservedNumber }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
 
 </div>
 
