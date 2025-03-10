@@ -135,12 +135,15 @@ export class LoginComponent implements OnInit {
   }
 
 
-    onLogin(): void { if (this.loginForm.valid) {
+    onLogin(): void {
+      if (this.loginForm.valid) {
       const user: User = this.loginForm.value;
       this.authService.login(user).subscribe(
         (res) => {
           console.log(user)
           localStorage.setItem('currentUser', JSON.stringify(res));
+
+
           this.router.navigate(['/dashboard']);
           //console.log(res)
 

@@ -58,30 +58,6 @@ export class ExternalRaffleComponent implements OnInit{
 
 
   ngOnInit(): void {
-    /*if (history.state && history.state.raffle) {
-      this.raffle = history.state.raffle;
-      this.raffleId = this.raffle?.id ?? null;
-      this.raffleCode = this.raffle?.code ?? '';
-      console.log('Rifa obtenida desde state:', this.raffle);
-      console.log('Codigo de la rifa:', this.raffleCode);
-    } else {
-
-      const idParam = this.route.snapshot.paramMap.get('id');
-      if (idParam) {
-        this.raffleId = Number(idParam);
-        this.cargarRifa(this.raffleId);
-        this.raffleCode = this.raffle?.code ?? '';
-        console.log('Codigo de la rifa:', this.raffleCode);
-        if (this.raffle && this.raffle.cantidadParticipantes) {
-          this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
-        }
-        this.loadParticipantes(this.raffleId);
-      } else {
-        console.error('No se encontró el ID de la rifa en la URL.');
-      }
-    }*/
-
-
       if (history.state && history.state.raffle) {
         this.raffle = history.state.raffle;
         this.raffleId = this.raffle?.id ?? null;
@@ -98,6 +74,7 @@ export class ExternalRaffleComponent implements OnInit{
               this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
             }
             this.loadParticipantes(this.raffleId);
+           // this.loadParticipantesPorRifa(this.raffleId)
           });
         } else {
           console.error('No se encontró el ID de la rifa en la URL.');
@@ -125,6 +102,8 @@ export class ExternalRaffleComponent implements OnInit{
 
 
   ];
+
+
 
   }
 
@@ -179,16 +158,7 @@ isInvalid(field: string): boolean {
     }
   }
 
-  initializeForm1() {
-    this.reservationForm = this.fb.group({
-      name: ['', Validators.required],
-      lastName: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{6,8}$/)]],
-      dni: ['', Validators.required],
-      code: ['', [Validators.required, this.validateRaffleCode.bind(this)]], // Validación correcta
-      reservedNumber: [{ value: '', disabled: true }, Validators.required]
-    });
-  }
+
 
   initializeForm() {
     this.reservationForm.get('code')?.setValidators([
@@ -234,6 +204,22 @@ isInvalid(field: string): boolean {
           console.log('Números reservados:', this.numerosReservados);
         },
         error: (err) => console.error('Error al cargar participantes:', err)
+      });
+    }
+
+    loadParticipantesPorRifa(raffleId: number): void {
+      // Si prefieres filtrar sobre la lista compartida:
+      this.participanteService.getAllParticipantes().subscribe({
+        next: (data) => {
+          this.participantes = data.filter(p => p.raffleId === raffleId);
+          console.log(`Participantes para la rifa ${raffleId}:`, this.participantes);
+          this.numerosReservados = this.participantes
+          .filter(p => p.reservedNumber !== null)
+          .map(p => p.reservedNumber);
+        console.log('Participantes para la rifa', raffleId, ':', this.participantes);
+        console.log('Números reservados:', this.numerosReservados);
+        },
+        error: (err) => console.error(`Error al cargar participantes para la rifa ${raffleId}:`, err)
       });
     }
 

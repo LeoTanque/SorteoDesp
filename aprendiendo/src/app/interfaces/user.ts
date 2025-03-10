@@ -11,4 +11,5 @@ export interface User {
   //codigoVip?: string;
   codigoVip?: CodigoVip // Código VIP del usuario (opcional)
   fechaRegistro?: Date; // Fecha de registro (opcional)
+
 }

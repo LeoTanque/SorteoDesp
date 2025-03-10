@@ -23,13 +23,14 @@ import { SidebarModule} from 'primeng/sidebar';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { SpeedDialModule } from 'primeng/speeddial';
 import { Participante } from '../../interfaces/participante';
 import { ParticipanteService } from '../../services/participante.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, ToolbarModule ,ReactiveFormsModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TableModule,
-    CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule, ToastModule ],
+    CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule, ToastModule, SpeedDialModule ],
     providers: [MessageService],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -59,8 +60,17 @@ export class DashboardComponent implements OnInit {
     // Asigna el producto seleccionado aquí
     active: true
   };
+
+  // Para la rifa
+  nombreSorteoInvalido: boolean = false;
   cantidadInvalida: boolean = false;
   descripcionInvalida: boolean = false;
+  fechaSorteoInvalida: boolean = false;
+
+  // Para el producto
+nombreProductoInvalido: boolean = false;
+descripcionProductoInvalida: boolean = false;
+imagenProductoInvalida: boolean = false;
 
   responsiveOptions = [
     {
@@ -118,7 +128,14 @@ raffleId: any | null = null;
 
   sidebarVisible: boolean = false;
   datosParticipantes: boolean = false;
-
+  remainingTime: { days: number; hours: number; minutes: number; seconds: number } = {
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  };
+  private timerInterval: any;
+  currentUser: any;
   constructor(
     private authService: AuthenticationService,private cdRef: ChangeDetectorRef,
     private router:Router,
@@ -135,8 +152,96 @@ raffleId: any | null = null;
 
    this.loadAllParticipantes();
 
+     this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+   this.userName = this.currentUser.name || 'Usuario';
+
+
+   if (this.currentUser && this.currentUser.fechaRegistro) {
+    const registrationDate = new Date(this.currentUser.fechaRegistro);
+    // Calcula la fecha de expiración sumando 30 días
+    const expiryDate = new Date(registrationDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+    this.startCountdown(expiryDate);
+  } else {
+    // Si no hay fecha de registro, asume que la cuenta ha expirado
+    this.remainingTime = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+}
+
+startCountdown(expiryDate: Date): void {
+  this.timerInterval = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = expiryDate.getTime() - now;
+
+    if (distance <= 0) {
+      // Si se acaba el tiempo, detener el cronómetro y poner todo en 0
+      this.remainingTime = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      clearInterval(this.timerInterval);
+    } else {
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      this.remainingTime = { days, hours, minutes, seconds };
+    }
+  }, 1000);
+
+
   }
 
+
+
+   logout1(): void {
+      this.sidebarVisible = false
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Quieres cerrar sesión?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'No, permanecer'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.authService.logout();
+          this.router.navigate(['/']);
+          Swal.fire( '¡Cerrado!', 'Tu sesión ha sido cerrada', 'success' );
+        }
+      });
+    }
+
+
+    logout(): void {
+      this.sidebarVisible = false;
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Quieres cerrar sesión?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'No, permanecer'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+          // Guardar la cantidad de rifas antes de limpiar el localStorage
+          let rifasGuardadas = null;
+          if (currentUser && currentUser.id) {
+            rifasGuardadas = localStorage.getItem(`rifas_${currentUser.id}`);
+          }
+
+          // Cerrar sesión y limpiar localStorage
+          this.authService.logout();
+          localStorage.clear();
+
+          // Restaurar la cantidad de rifas si existía
+          if (currentUser && currentUser.id && rifasGuardadas) {
+            localStorage.setItem(`rifas_${currentUser.id}`, rifasGuardadas);
+          }
+
+          this.router.navigate(['/']);
+          Swal.fire('¡Cerrado!', 'Tu sesión ha sido cerrada', 'success');
+        }
+      });
+    }
 
 
   loadUserId(): void {
@@ -253,6 +358,7 @@ private asignarCodigoVip(cantidadRifas: number): void {
     this.userId = currentUser.id;
     this.cantidadRifas = cantidadRifas;
 
+
     this.mostrarMensaje('success', 'Código VIP asignado', `¡Felicidades! Ahora eres un usuario VIP con ${cantidadRifas} rifas.`);
     this.hideProductDialog();
     this.codigoVip = '';
@@ -263,6 +369,8 @@ private asignarCodigoVip(cantidadRifas: number): void {
     this.mostrarMensaje('error', 'Error al asignar el código VIP', 'Hubo un error al actualizar el usuario.');
   }
 }
+
+
 
 
 
@@ -454,6 +562,22 @@ copyToClipboard(code: string) {
   });
 }
 
+copyToClipboard1(text: string): void {
+  navigator.clipboard.writeText(text).then(() => {
+    Swal.fire({
+      title: 'Copiado',
+      text: 'El enlace ha sido copiado al portapapeles',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }).catch(err => console.error('Error al copiar:', err));
+}
+
+
+getRaffleUrl(id: number): string {
+  return `${window.location.origin}/external-raffle/${id}`;
+}
 
 executeRaffle(event: Event, raffle: Raffle): void {
   event.stopPropagation();
@@ -586,10 +710,6 @@ compartirRifa(raffle: any) {
     }
 
 
-
-
-
-
 //Este es para controlar la calidad de las imagenes
   onFileChange(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
@@ -632,6 +752,7 @@ compartirRifa(raffle: any) {
 
 
 
+
   removeSelectedImage(index: number): void {
     this.selectedFiles[index] = null;
     this.previews[index] = null;
@@ -639,6 +760,7 @@ compartirRifa(raffle: any) {
       this.fileInputs.forEach(input => input.nativeElement.value = '');
     }
   }
+
   clearFile(index: number): void {
     this.previews[index] = null;
     this.selectedFiles[index] = null;
@@ -652,26 +774,25 @@ compartirRifa(raffle: any) {
 
 
 
-  validarCantidadParticipantes(): void {
-    this.cantidadInvalida = this.newRaffle.cantidadParticipantes > 100;
-  }
-
-  validarDescripcion(): void {
-    this.descripcionInvalida = this.productData.descripcion.length > 1500;
-    if (this.descripcionInvalida) {
-      this.productData.descripcion = this.productData.descripcion.substring(0, 1500);
-    }
-  }
-
 
 
 
 onSubmit(): void {
-  if (!this.isValid()) {
+  if (!this.validarFormularioRifa()) {
     console.error('El formulario no es válido.');
+
     return;
   }
-
+ // Valida que se haya agregado un producto a la rifa
+ if (!this.productData || !this.productData.nombre) {
+  this.messageService.add({
+    severity: 'error',
+    summary: 'Error en el producto',
+    detail: 'Debe agregar un producto correctamente antes de guardar la rifa.',
+    life: 2000
+  });
+  return;
+}
 
 
   if (this.isVip && !this.codigoVip) {
@@ -714,6 +835,9 @@ onSubmit(): void {
           text: 'Rifa creada y añadida a las rifas activas.',
           icon: 'success',
           confirmButtonText: 'Aceptar',
+            customClass: {
+      popup: 'my-swal-popup'
+    }
         });
 
         this.hideDialog();
@@ -744,6 +868,7 @@ onSubmit(): void {
             text: errorMessage,
             icon: 'error',
             confirmButtonText: 'Aceptar',
+
           });
         }
       },
@@ -763,12 +888,15 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
     text: mensaje,
     icon: icono,
     confirmButtonText: 'Aceptar',
+    customClass: {
+      popup: 'my-swal-popup'
+    }
   });
 }
 
 
 
-  isValid(): boolean {
+  isValid1(): boolean {
     return (
       this.newRaffle.nombre.trim() !== '' &&
       this.newRaffle.cantidadParticipantes > 0 &&
@@ -778,6 +906,19 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
     );
   }
 
+  isValid(): boolean {
+    if (
+      !this.newRaffle.nombre || this.newRaffle.nombre.trim() === '' ||
+      !this.newRaffle.cantidadParticipantes || this.newRaffle.cantidadParticipantes <= 0 ||
+      !this.newRaffle.fechaSorteo ||
+      !this.productData.nombre || this.productData.nombre.trim() === '' ||
+      !this.productData.descripcion || this.productData.descripcion.trim() === '' ||
+      !this.productData.imagenes || this.productData.imagenes.length === 0
+    ) {
+      return false;
+    }
+    return true;
+  }
 
 
   hideDialog(): void {
@@ -802,9 +943,90 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
         }
       }
 
+      validarFormularioProducto(): boolean {
+        let mensajeError = '';
+
+        if (!this.productData.nombre || this.productData.nombre.trim().length === 0) {
+          mensajeError += '⚠️ El nombre del producto es obligatorio.\n';
+        }
+
+        if (!this.productData.descripcion || this.productData.descripcion.trim().length === 0) {
+          mensajeError += '⚠️ La descripción del producto es obligatoria.\n';
+        } else if (this.productData.descripcion.length > 1500) {
+          mensajeError += '⚠️ La descripción no puede superar los 1500 caracteres.\n';
+        }
+
+        if (!this.productData.imagenes || this.productData.imagenes.length === 0) {
+          mensajeError += '⚠️ Debes agregar al menos una imagen del producto.\n';
+        }
+
+        if (mensajeError) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Errores en el producto',
+            detail: mensajeError,
+            life: 5000
+          });
+          return false;
+        }
+
+        return true;
+      }
+
+      validarFormularioRifa(): boolean {
+        let mensajeError = '';
+
+        if (!this.newRaffle.nombre || this.newRaffle.nombre.trim().length === 0) {
+          mensajeError += '⚠️ El nombre del sorteo es obligatorio.\n';
+        }
+
+        if (!this.newRaffle.cantidadParticipantes || this.newRaffle.cantidadParticipantes <= 0) {
+          mensajeError += '⚠️ La cantidad de participantes debe ser mayor a 0.\n';
+        } else if (this.newRaffle.cantidadParticipantes > 100) {
+          mensajeError += '⚠️ No pueden haber más de 100 participantes.\n';
+        }
+
+        if (!this.newRaffle.fechaSorteo) {
+          mensajeError += '⚠️ La fecha del sorteo es obligatoria.\n';
+        } else {
+          const fechaIngresada = new Date(this.newRaffle.fechaSorteo);
+          const fechaActual = new Date();
+          if (fechaIngresada < fechaActual) {
+            mensajeError += '⚠️ La fecha del sorteo debe ser futura.\n';
+          }
+        }
+
+        if (!this.newRaffle.producto) {
+          mensajeError += '⚠️ Debes agregar un producto antes de guardar la rifa.\n';
+        }
+
+        if (mensajeError) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Errores en la rifa',
+            detail: mensajeError,
+            life: 5000
+          });
+          return false;
+        }
+
+        return true;
+      }
+
+
 
 
       saveProductData(): void {
+        if (!this.validarFormularioProducto()) {
+          return;
+        }
+
+        this.newRaffle.producto = this.productData;
+        console.log('Datos del producto guardados:', this.productData);
+        this.hideProductDialog();
+      }
+
+      saveProductData1(): void {
         this.newRaffle.producto = this.productData;
         console.log('Datos del producto guardados:', this.productData);
         this.hideProductDialog();
@@ -938,6 +1160,17 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
         });
       }
 
+
+      loadAllParticipantes1(): void {
+        this.participanteService.getAllParticipantes().subscribe({
+          next: (data) => {
+            this.participantes = data;
+            console.log('Participantes:', this.participantes);
+          },
+          error: (err) => console.error('Error al cargar participantes:', err)
+        });
+      }
+
       mostrarParticipantes(raffleId: number): void {
         this.participanteService.getParticipantesByRaffleId(raffleId).subscribe({
           next: (data) => {
@@ -951,6 +1184,97 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
         });
       }
 
+      cerrarModalParticipantes(){
+        this.datosParticipantes = false
+      }
 
+      eliminarParticipante0(id: number): void {
+        this.participanteService.deleteParticipante(id).subscribe({
+          next: () => {
+            // Filtrar la lista local para eliminar el participante borrado
+            this.participantes = this.participantes.filter(p => p.id !== id);
+            // Actualizar la lista de números reservados
+            this.numerosReservados = this.participantes
+              .filter(p => p.reservedNumber !== null)
+              .map(p => p.reservedNumber);
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: 'Participante eliminado correctamente',
+              life: 1500
+            });
+
+          },
+          error: (err) => {
+            console.error('Error al eliminar el participante:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo eliminar el participante',
+              life: 3000
+            });
+          }
+        });
+      }
+
+      eliminarParticipante(id: number): void {
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Esta seguro que desea eliminar este usuario',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.participanteService.deleteParticipante(id).subscribe({
+              next: () => {
+                this.participantes = this.participantes.filter(p => p.id !== id);
+                this.numerosReservados = this.participantes
+                  .filter(p => p.reservedNumber !== null)
+                  .map(p => p.reservedNumber);
+
+                Swal.fire({
+                  title: 'Eliminado',
+                  text: 'El participante ha sido eliminado correctamente',
+                  icon: 'success',
+                  timer: 1500,
+                  confirmButtonText: 'Aceptar',
+                });
+              },
+              error: (err) => {
+                console.error('Error al eliminar el participante:', err);
+                Swal.fire({
+                  title: 'Error',
+                  text: 'No se pudo eliminar el participante',
+                  icon: 'error',
+                  timer: 3000,
+                  confirmButtonText: 'Aceptar',
+                });
+              }
+            });
+          }
+        });
+        this.cerrarModalParticipantes()
+      }
+
+      eliminarParticipante1(id: number): void {
+        this.participanteService.deleteParticipante(id).subscribe({
+          next: () => {
+            console.log('Participante eliminado:', id);
+            // No es necesario llamar a refresh aquí, ya que el BehaviorSubject actualizará automáticamente
+          },
+          error: (err) => console.error('Error al eliminar participante:', err)
+        });
+      }
+
+      ngOnDestroy(): void {
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+        }
+      }
 
 }

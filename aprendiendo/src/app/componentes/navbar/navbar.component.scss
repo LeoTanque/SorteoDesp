@@ -2,3 +2,22 @@
   font-size: 0.8rem;
   padding: 0.5rem 1.09375rem;
 }
+
+.toolbar-center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar-title {
+  margin: 0;
+}
+
+.toolbar-greeting {
+  margin: 0;
+  font-weight: normal;
+  font-size: 1.2rem;
+}
+
+

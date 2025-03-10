@@ -4,28 +4,35 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class ThemeService {
-  private darkThemeClass = 'lara-dark-blue';
-  private lightThemeClass = 'lara-light-blue';
 
-  constructor() { }
-
-  enableDarkTheme() {
-    this.updateTheme(this.darkThemeClass);
+  //activeTheme: string = 'dark';
+  activeTheme: string = 'light';
+  getTheme() {
+    return this.activeTheme;
   }
 
-  enableLightTheme() {
-    this.updateTheme(this.lightThemeClass);
+
+  setTheme1(theme: string): void {
+    let themeLink = document.getElementById('app-theme') as HTMLLinkElement;
+
+    if (themeLink) {
+      themeLink.href = theme + '.css';
+    }
+    this.activeTheme = theme;
   }
 
-  isDarkTheme(): boolean {
-    return document.body.classList.contains(this.darkThemeClass);
+  setTheme(theme: string): void {
+    const themeLink = document.getElementById('app-theme') as HTMLLinkElement;
+    console.log('Cambiando tema a:', theme);
+    if (themeLink) {
+
+      themeLink.href = theme + '.css';
+      console.log('Nuevo href asignado:', themeLink.href);
+    } else {
+      console.error('No se encontró el link con id "app-theme"');
+    }
+    this.activeTheme = theme;
   }
 
-  private updateTheme(themeClass: string) {
-    const body = document.body;
-    const otherThemeClass =
-      themeClass === this.darkThemeClass ? this.lightThemeClass : this.darkThemeClass;
-    body.classList.remove(otherThemeClass);
-    body.classList.add(themeClass);
-  }
+
 }

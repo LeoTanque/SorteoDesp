@@ -72,6 +72,23 @@
 }
 
 
+.floating-actions {
+  position: fixed;
+  top: 10px;       /* Ajusta según necesites */
+  left: 10px;      /* Ajusta según necesites */
+  z-index: 1000;   /* Asegúrate de que esté por encima de otros elementos */
+}
+
+.floating-button {
+  position: fixed;
+  top: 38px;  /* Ajusta según necesites */
+  left: 10px; /* Ajusta según necesites */
+  z-index: 1000; /* Asegura que se muestre por encima de otros elementos */
+}
+
+
+
+
 @media only screen and (max-width: 768px) {
   .p-dialog {
     width: 90% !important;
@@ -144,7 +161,7 @@ p{
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   margin-bottom: 1rem;
-  background: #fafafa;
+ // background: #fafafa;
 }
 
 .upload-slot-grid .grid-item {
@@ -229,3 +246,85 @@ p{
 .custom-file-upload i {
   font-size: 18px;
 }
+
+
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espacio entre elementos */
+}
+
+.link {
+  text-decoration: none;
+  color: #778899; /* Azul similar a enlaces */
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.raffle-code1 {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.raffle-code:hover {
+  background-color: #e2e6ea;
+}
+
+.pi-copy {
+  font-size: 1rem;
+}
+
+
+.my-swal-popup {
+  z-index: 2000 !important;
+}
+
+.countdown-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #222;
+  color: #0dcaf0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+}
+
+.time-box {
+  background-color: #333;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 0 5px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.separator {
+  font-weight: bold;
+}
+
+.expired {
+  text-align: center;
+  color: red;
+  font-size: 1.5rem;
+}
+

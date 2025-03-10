@@ -1,22 +1,49 @@
-<p-toolbar>
+<!--p-toolbar>
   <div class="centered" style="width: 90%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
     <h2>Hola, <span id="usuario-registrado" class="text-primary">{{ userName }}</span>!</h2>
     <p class="text-center">Días restantes para el vencimiento de tu cuenta: <span id="dias-vencimiento" class="text-danger fw-bold">{{ daysLeft }}</span></p>
   </div>
 
   <div class="p-toolbar-group-end">
-    <!--button-- pButton type="button" label="Logout" class="p-button-danger p-button-sm" (click)="logout()"></!--button-->
+    <button pButton type="button" label="Logout" class="p-button-danger p-button-sm" (click)="logout()"></button>
   </div>
-</p-toolbar>
+</p-toolbar-->
 
-<div class="card flex justify-content-center">
+<!--div-- class="card flex justify-content-center">
   <p-sidebar [(visible)]="sidebarVisible">
    <h3>Sidebar</h3>
    <p class="text-center">Días restantes para el vencimiento de tu cuenta: <span id="dias-vencimiento" class="text-danger fw-bold">{{ daysLeft }}</span></p>
    <button pButton type="button" label="Logout" class="p-button-danger p-button-sm" (click)="logout()"></button>
   </p-sidebar>
 <p-button (onClick)="sidebarVisible = true" icon="pi pi-arrow-right" />
-</div>
+</!--div-->
 
+<p-toolbar>
+  <div class="p-toolbar-group-start">
+    <div class="floating-button">
+      <!--p-button (onClick)="sidebarVisible = true" icon="pi pi-bars" [rounded]="true" severity="secondary"[text]="true" /-->
+    </div>
+  </div>
+  <div class="p-toolbar-group-center">
+    <div class="toolbar-center-content">
+      <h2 class="toolbar-title">{{ title }}</h2>
+      <ng-container *ngIf="isExternal; else normalGreeting">
+        <h3 class="toolbar-greeting">
+          Rifa perteneciente al administrador <span id="usuario-registrado" class="text-primary">{{ userName }}</span>
+        </h3>
+      </ng-container>
+      <ng-template #normalGreeting>
+        <h3 class="toolbar-greeting">
+          Hola, <span id="usuario-registrado" class="text-primary">{{ userName }}</span>!
+        </h3>
+      </ng-template>
+    </div>
+  </div>
 
+  <div class="p-toolbar-group-end">
+
+    <!--p-inputSwitch [(ngModel)]="checked" (ngModelChange)="onThemeChange($event ? 'dark' : 'light')"></!--p-inputSwitch-->
+    <p-inputSwitch [(ngModel)]="checked" (click)="onThemeChange(checked ? 'dark' : 'light')"></p-inputSwitch>
+  </div>
+</p-toolbar>
 
