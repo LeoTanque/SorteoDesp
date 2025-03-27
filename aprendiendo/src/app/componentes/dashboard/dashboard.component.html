@@ -77,7 +77,7 @@
 
 
 
-          <div class="flex gap-2 mt-2">
+          <!--div class="flex gap-2 mt-2">
             <button pButton type="button" label="Compartir" icon="pi pi-share"
                     class="p-button-info p-button-sm" (click)="shareOnWhatsApp()"></button>
 
@@ -87,15 +87,25 @@
             <button pButton type="button" label="Eliminar"
                     class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
 
-            <!--button-- pButton type="button" label="Ver Participantes" icon="pi pi-users" class="p-button-secondary p-button-sm" (click)="raffle.id && mostrarParticipantes(raffle.id)"></!--button-->
-          </div>
-          <div class="button-group" style="text-align: center; margin-top: 1rem;">
+
+          </!--div>
+          <div-- class="button-group" style="text-align: center; margin-top: 1rem;">
             <button pButton type="button" label="Ver Participantes" icon="pi pi-users"
                     class="p-button-secondary p-button-sm" (click)="raffle.id && mostrarParticipantes(raffle.id)"></button>
             <br />
             <button pButton type="button" label="Ver Banner" icon="pi pi-eye"
                     class="p-button-success p-button-sm mt-2"
                     (click)="openBanner(raffle)"></button>
+          </div-->
+
+          <div style="height: 50px; position: relative; margin-top: 10px;" class="speeddial-linear-demo">
+            <p-speedDial
+            [model]="getActions(raffle)"
+            [radius]="80"
+            type="semi-circle"
+            direction="down"
+            buttonClassName="p-button-contrast"
+            />
           </div>
 
           <!--button pButton type="button" label="Editar" icon="pi pi-pencil" class="p-button-info p-button-sm mt-3"

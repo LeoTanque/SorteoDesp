@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
 
 
@@ -24,4 +24,15 @@ export class AuthGuardLogin implements CanActivate {
       return true;
     }
   }
+
+
+  /*canActivate(route: ActivatedRouteSnapshot): boolean {
+    const fromSignup = route.queryParams['fromSignup'];
+    if (this.authService.isUserLoggedIn() && !fromSignup) {
+      this.router.navigate(['/dashboard']);
+      return false;
+    }
+    return true;
+  }*/
+
 }

@@ -177,6 +177,53 @@ raffleId: any | null = null;
   }
 }
 
+
+
+
+getActions(raffle: Raffle) {
+  return [
+    {
+      label: 'Compartir',
+      icon: 'pi pi-external-link',
+      command: () => {
+        this.shareOnWhatsApp();
+      }
+    },
+    {
+      label: 'Ejecutar Sorteo',
+      icon: 'pi pi-play',
+      command: (event: any) => {
+        console.log('Ejecutar Sorteo callback invocado para la rifa:', raffle);
+        this.executeRaffle(null, raffle);
+
+      }
+    },
+    {
+      label: 'Eliminar',
+      icon: 'pi pi-trash',
+      command: () => {
+        this.deleteRaffle(raffle);
+      }
+    },
+    {
+      label: 'Ver Participantes',
+      icon: 'pi pi-users',
+      command: () => {
+        if (raffle.id) { this.mostrarParticipantes(raffle.id); }
+      }
+    },
+    {
+      label: 'Ver Banner',
+      icon: 'pi pi-eye',
+      command: () => {
+        this.openBanner(raffle);
+      }
+    }
+  ];
+}
+
+
+
 startCountdown(expiryDate: Date): void {
   this.timerInterval = setInterval(() => {
     const now = new Date().getTime();
@@ -652,7 +699,7 @@ getRaffleUrl(id: number): string {
   return `${window.location.origin}/external-raffle/${id}`;
 }
 
-executeRaffle(event: Event, raffle: Raffle): void {
+executeRaffle1(event: Event, raffle: Raffle): void {
   event.stopPropagation();
   Swal.fire({
     title: '¿Ejecutar rifa?',
@@ -690,6 +737,44 @@ executeRaffle(event: Event, raffle: Raffle): void {
 }
 
 
+executeRaffle(event: Event | null, raffle: Raffle): void {
+  if (event) {
+    event.stopPropagation();
+  }
+  Swal.fire({
+    title: '¿Ejecutar rifa?',
+    text: 'Esta acción ejecutará el sorteo y desactivará la rifa. ¿Desea continuar?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, ejecutar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      raffle.active = false;
+      this.raffleService.updateRaffle(raffle.id!, raffle).subscribe({
+        next: (updatedRaffle) => {
+          console.log('Rifa ejecutada:', updatedRaffle);
+          Swal.fire({
+            title: 'Ejecutada!',
+            text: 'La rifa ha sido ejecutada correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+          this.updateRafflesByStatus();
+        },
+        error: (error) => {
+          console.error('Error al ejecutar la rifa:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo ejecutar la rifa. Por favor, inténtelo de nuevo.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      });
+    }
+  });
+}
 
 
 

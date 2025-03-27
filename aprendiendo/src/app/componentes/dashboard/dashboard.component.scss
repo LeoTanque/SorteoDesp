@@ -104,6 +104,42 @@
 }
 
 
+:host ::ng-deep {
+  .speeddial-linear-demo {
+      .p-speeddial-direction-up {
+          left: calc(50% - 2rem);
+          bottom: 0;
+      }
+
+      .p-speeddial-direction-down {
+          left: calc(50% - 2rem);
+          top: 0;
+      }
+
+      .p-speeddial-direction-left {
+          right: 0;
+          top: calc(50% - 2rem);
+      }
+
+      .p-speeddial-direction-right {
+          left: 0;
+          top: calc(50% - 2rem);
+      }
+  }
+
+  .p-speeddial-action {
+    width: 3rem;
+    height: 3rem;
+    background: #626f74;
+    color: #fff;
+  }
+
+.p-speeddial-button.p-button.p-button-icon-only {
+    width: 3rem;
+    height: 3rem;
+}
+}
+
 
 
 @media only screen and (max-width: 768px) {

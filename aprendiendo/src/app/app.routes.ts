@@ -15,7 +15,7 @@ import { EditRaffleComponent } from './componentes/edit-raffle/edit-raffle.compo
 
 export const routes: Routes = [
   {path:'home', component: HomeComponent},
-  {path:'', redirectTo:'home', pathMatch:'full'},
+  {path:'home', redirectTo:'', pathMatch:'full'},
   {path:'login',component:LoginComponent, canActivate: [AuthGuardLogin]},
   {path:'dashboard', component:DashboardComponent, canActivate: [authGuard] },
   {path:'lista', component:ListaComponent},
