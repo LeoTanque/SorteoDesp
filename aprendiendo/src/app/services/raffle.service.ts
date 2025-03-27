@@ -70,6 +70,17 @@ export class RaffleService {
     });
   }
 
+  generarImagenRifa(rifaId: number): Observable<string> {
+    const url = `${this.baseUrl}/generar/${rifaId}`; // Asegúrate de que el backend tenga este endpoint
+    return this.http.get<{ url: string }>(url).pipe(
+      map(response => response.url),
+      catchError((error) => {
+        console.error('Error al generar la imagen:', error);
+        return throwError(() => new Error('Error al generar la imagen de la rifa'));
+      })
+    );
+  }
+
 
 
 

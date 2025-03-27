@@ -23,40 +23,6 @@ public class ImageController {
     private static final String UPLOAD_DIR = "/app/uploads/";
 
 
-    /*@PostMapping("/upload")
-    public ResponseEntity<Map<String, Object>> uploadImages(@RequestParam("files") List<MultipartFile> files) {
-        List<String> urls = new ArrayList<>();
-
-        try {
-            // Mensaje de depuración
-            System.out.println("Archivos recibidos: " + files.size());
-
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                    Path filePath = Paths.get(UPLOAD_DIR + fileName);
-                    Files.write(filePath, file.getBytes());
-
-                    String fileUrl = "http://localhost:8080/api/images/" + fileName;
-                    urls.add(fileUrl);
-
-                    // Mensaje de depuración
-                    System.out.println("Archivo guardado: " + fileName);
-                }
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("urls", urls);
-            return ResponseEntity.ok(response);
-
-        } catch (IOException e) {
-            // Mensaje de error
-           // System.err.println("Error al subir las imágenes: " + e.getMessage());
-           // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error al subir las imágenes"));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al subir las imágenes", "details", e.getMessage()));
-        }
-    }*/
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, Object>> uploadImages(@RequestParam("files") List<MultipartFile> files) {

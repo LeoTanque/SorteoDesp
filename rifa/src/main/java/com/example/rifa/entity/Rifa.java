@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+import java.math.BigDecimal;
 @Entity
 @Table(name = "rifas")
 public class Rifa {
@@ -26,6 +27,7 @@ public class Rifa {
     // Nuevo campo code
     private String code;
 
+    private BigDecimal precio;
 
     public Long getId() {
         return id;
@@ -88,6 +90,14 @@ public class Rifa {
     }
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public BigDecimal getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio;
     }
 
 }

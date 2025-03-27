@@ -1,0 +1,53 @@
+
+
+
+<div class="edit-raffle-container" *ngIf="raffle">
+  <h2>Editar Rifa</h2>
+  <form (ngSubmit)="onSubmit()" #raffleForm="ngForm">
+
+    <!-- Datos de la rifa -->
+    <div class="field">
+      <label for="nombre">Nombre de la rifa:</label>
+      <input id="nombre" type="text" pInputText [(ngModel)]="raffle.nombre" name="nombre" required />
+    </div>
+
+    <div class="field">
+      <label for="cantidadParticipantes">Cantidad de Participantes:</label>
+      <input id="cantidadParticipantes" type="number" pInputText [(ngModel)]="raffle.cantidadParticipantes" name="cantidadParticipantes" required />
+    </div>
+
+    <div class="field">
+      <label for="fechaSorteo">Fecha del Sorteo:</label>
+      <input id="fechaSorteo" type="date" pInputText [(ngModel)]="raffle.fechaSorteo" name="fechaSorteo" required />
+    </div>
+
+    <div class="field">
+      <label for="precio">Precio:</label>
+      <input id="precio" type="number" pInputText step="0.01" [(ngModel)]="raffle.precio" name="precio" required />
+    </div>
+
+    <h3>Datos del Producto</h3>
+
+    <div class="field">
+      <label for="productoNombre">Nombre del Producto:</label>
+      <input id="productoNombre" type="text" pInputText [(ngModel)]="raffle.producto.nombre" name="productoNombre" required />
+    </div>
+
+    <div class="field">
+      <label for="productoDescripcion">Descripción del Producto:</label>
+      <textarea id="productoDescripcion" pInputTextarea rows="4" [(ngModel)]="raffle.producto.descripcion" name="productoDescripcion" required></textarea>
+    </div>
+
+    <!--div class="field">
+      <label for="productoImagenes">URL de la Imagen del Producto:</label>
+
+      <input id="productoImagenes" type="text" pInputText placeholder="Ingrese URL de la imagen" [(ngModel)]="raffle.producto.imagenes[0]" name="productoImagenes" />
+    </!--div-->
+
+    <div class="button-group">
+      <button pButton type="submit" label="Guardar" icon="pi pi-check" class="p-button-primary" [disabled]="!raffleForm.valid"></button>
+      <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cancel()"></button>
+    </div>
+  </form>
+</div>
+

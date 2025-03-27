@@ -10,7 +10,7 @@ import { ThemeService } from './services/theme.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, CommonModule, InputSwitchModule, FormsModule, ButtonModule],
+  imports: [RouterOutlet, NavbarComponent, CommonModule, InputSwitchModule, FormsModule, ButtonModule, ThemeToggleComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -24,9 +24,12 @@ export class AppComponent {
       if (event instanceof NavigationEnd) {
 
         const currentUrl = this.router.url;
-        // Oculta el navbar si la ruta es exactamente '/' o empieza con '/admin'
-        this.shouldShowToolbar = !(currentUrl === '/' || currentUrl.startsWith('/codigos') || currentUrl.startsWith('/datos-rifa') );
-        //this.shouldShowToolbar = !['/'].includes(this.router.url);
+        this.shouldShowToolbar = !(currentUrl === '/login' ||
+          currentUrl.startsWith('/codigos') ||
+          currentUrl.startsWith('/datos-rifa') ||
+          currentUrl.startsWith('/home')
+        );
+
       }
     });
   }

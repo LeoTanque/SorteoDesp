@@ -6,9 +6,11 @@
 
     <div class="col-6 p-md-6">
       <h3>Rifas Activas</h3>
-      <div *ngFor="let raffle of activeRaffles" class="p-card mb-3" style="position: relative;">
+      <div *ngFor="let raffle of activeRaffles" class="p-card mb-5" style="position: relative">
 
-
+        <div class="price-tag" style="position: absolute; top: 10px; left: 10px; background: #445367; color: #fff; padding: 0.5rem 0.75rem; border-radius: 5px; font-weight: bold; z-index: 100;">
+          {{ raffle.precio | currency:'USD':'symbol':'1.0-0' }}
+        </div>
 
 
         <!--button-- class="raffle-code" *ngIf="raffle.code" (click)="copyToClipboard(raffle.code)">
@@ -17,12 +19,16 @@
         </!--button-->
 
 
+
+          <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="contrast" class="edit" [routerLink]="['/edit-raffle', raffle.id]" />
+
         <div class="p-card-body"
              style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px; text-align: center;">
 
-          <h5 class="fw-bold">{{ raffle.nombre }}</h5>
+          <h4 class="fw-bold">{{ raffle.nombre }}</h4>
           <p>{{ raffle.producto.nombre }}</p>
           <p>{{ raffle.producto.descripcion }}</p>
+          <!--p>{{raffle.precio}}</!--p-->
 
           <p-carousel
             [value]="raffle.producto.imagenes"
@@ -83,17 +89,30 @@
 
             <!--button-- pButton type="button" label="Ver Participantes" icon="pi pi-users" class="p-button-secondary p-button-sm" (click)="raffle.id && mostrarParticipantes(raffle.id)"></!--button-->
           </div>
-          <button pButton type="button" label="Ver Participantes" icon="pi pi-users" class="p-button-secondary p-button-sm mt-3" (click)="raffle.id && mostrarParticipantes(raffle.id)"></button>
+          <div class="button-group" style="text-align: center; margin-top: 1rem;">
+            <button pButton type="button" label="Ver Participantes" icon="pi pi-users"
+                    class="p-button-secondary p-button-sm" (click)="raffle.id && mostrarParticipantes(raffle.id)"></button>
+            <br />
+            <button pButton type="button" label="Ver Banner" icon="pi pi-eye"
+                    class="p-button-success p-button-sm mt-2"
+                    (click)="openBanner(raffle)"></button>
+          </div>
+
+          <!--button pButton type="button" label="Editar" icon="pi pi-pencil" class="p-button-info p-button-sm mt-3"
+          [routerLink]="['/edit-raffle', raffle.id]"></!--button-->
         </div>
       </div>
     </div>
+
+
+
 
 
     <div class="col-6 p-md-6">
       <h3>Rifas Finalizadas</h3>
       <div *ngFor="let raffle of completedRaffles" class="p-card mb-3">
         <div class="p-card-body" style="box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.897); border-radius: 10px; text-align: center;">
-          <h5 class="fw-bold">{{ raffle.nombre }}</h5>
+          <h4 class="fw-bold">{{ raffle.nombre }}</h4>
           <p>{{ raffle.producto.nombre }}</p>
           <p>{{ raffle.producto.descripcion }}</p>
           <p-carousel
@@ -126,6 +145,19 @@
   </div>
 
 
+
+<!-- ... otros elementos del formulario de creación ... -->
+
+<!-- Vista previa del banner de la rifa recién creada -->
+<!--div *ngIf="newlyCreatedRaffle">
+  <app-raffle-banner [raffle]="newlyCreatedRaffle"></app-raffle-banner>
+</!--div-->
+
+
+
+
+
+<app-raffle-banner #raffleBanner [raffle]="newlyCreatedRaffle"></app-raffle-banner>
   <div class="mt-4 text-center">
     <button pButton type="button" label="Crear Nueva Rifa" icon="pi pi-plus" class="p-button-success" (click)="showDialog()"></button>
 
@@ -167,6 +199,13 @@ header="Crear Nueva Rifa"
         <label for="date" class="block font-bold mb-3">Fecha del Sorteo</label>
         <input type="date" pInputText id="date" [(ngModel)]="newRaffle.fechaSorteo" name="date" class="w-full" required />
       </div>
+
+      <div class="col-12">
+        <label for="price" class="block font-bold mb-3">Precio de la rifa</label>
+        <input id="price" type="number" pInputText [(ngModel)]="newRaffle.precio" name="price" required class="w-full" step="0.01" />
+
+      </div>
+
       <div class="col-12">
         <button pButton type="button" label="Agregar Producto" icon="pi pi-plus" class="p-button-primary" (click)="showProductDialog()"></button>
       </div>
@@ -220,7 +259,12 @@ header="Crear Nueva Rifa"
 </p-dialog>
 
 
-<p-dialog header="Ingresar Código VIP" [(visible)]="displayDialog1" [modal]="true" [style]="{ width: '50%' }">
+<p-dialog
+header="Ingresar Código VIP"
+[(visible)]="displayDialog1"
+[modal]="true"
+[style]="{ width: '50%' }">
+
   <div class="p-fluid grid flex-col gap-2">
     <div class="col-12">
       <label for="productName" class="block font-bold mb-3">Ingrese el codigo VIP</label>
@@ -258,17 +302,17 @@ header="Crear Nueva Rifa"
 
       <ul class="list-none p-0 m-0 overflow-hidden">
         <li>
-          <div class="flex align-items-start cursor-pointer mb-2">
+          <div class="sidebar-buttons">
             <button pButton type="button" label="Ser VIP" class="p-button-success" (click)="abrirModal()"></button>
           </div>
         </li>
         <li>
-          <div class="flex align-items-start cursor-pointer mb-2">
+          <div class="sidebar-buttons">
             <button pButton type="button" label="Guardar"  class="p-button-primary" (click)="shareOnWhatsApp()"></button>
           </div>
         </li>
         <li>
-          <div class="flex align-items-start cursor-pointer">
+          <div class="sidebar-buttons">
             <button pButton type="button" label="Logout" class="p-button-danger p-button-sm" (click)="logout()"></button>
           </div>
         </li>

@@ -15,6 +15,7 @@ services:
       DB_DRIVER: com.mysql.cj.jdbc.Driver
     volumes:
       - ./uploads:/app/uploads
+      - ./videos:/app/videos
     restart: always
     depends_on:
       - java_db

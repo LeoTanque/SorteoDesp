@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -16,7 +16,7 @@ import { Raffle } from '../../interfaces/raffle';
 import { FileUploadModule } from 'primeng/fileupload';
 import { User } from '../../interfaces/user';
 import { Producto } from '../../interfaces/producto';
-import { forkJoin, Subscription, tap } from 'rxjs';
+import { forkJoin, Subscription, switchMap, tap } from 'rxjs';
 import { CarouselModule } from 'primeng/carousel';
 import { TagModule } from 'primeng/tag';
 import { SidebarModule} from 'primeng/sidebar';
@@ -26,11 +26,12 @@ import { MessageService } from 'primeng/api';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { Participante } from '../../interfaces/participante';
 import { ParticipanteService } from '../../services/participante.service';
+import { RaffleBannerComponent } from "../raffle-banner/raffle-banner.component";
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ToolbarModule ,ReactiveFormsModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TableModule,
-    CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule, ToastModule, SpeedDialModule ],
+  imports: [CommonModule, ToolbarModule, ReactiveFormsModule, FormsModule, DialogModule, ButtonModule, InputTextModule, TableModule, TagModule,
+    CalendarModule, InputTextareaModule, ListboxModule, FileUploadModule, CarouselModule, TagModule, SidebarModule, ToastModule, SpeedDialModule, RaffleBannerComponent],
     providers: [MessageService],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -38,6 +39,9 @@ import { ParticipanteService } from '../../services/participante.service';
 export class DashboardComponent implements OnInit {
 
   @ViewChildren('fileInput') fileInputs!: QueryList<ElementRef>;
+  @ViewChild(RaffleBannerComponent) raffleBannerComponent!: RaffleBannerComponent;
+
+  @ViewChild('raffleBanner') raffleBanner!: RaffleBannerComponent;
   userName: string = '';
   userId!: any;
   daysLeft: number = 30;
@@ -58,9 +62,15 @@ export class DashboardComponent implements OnInit {
 
     },
     // Asigna el producto seleccionado aquí
-    active: true
+    active: true,
+    precio: 0
   };
 
+  //newlyCreatedRaffle!: Raffle;
+  newlyCreatedRaffle: any = null;
+  selectedRaffle!: Raffle;
+  displayBanner: boolean = false;
+  imageDataUrl: string | null = null;
   // Para la rifa
   nombreSorteoInvalido: boolean = false;
   cantidadInvalida: boolean = false;
@@ -188,6 +198,37 @@ startCountdown(expiryDate: Date): void {
 
   }
 
+  openBanner(raffle: Raffle): void {
+    this.selectedRaffle = raffle;
+
+    if (this.raffleBannerComponent) {
+      this.raffleBannerComponent.raffle = raffle;
+      this.raffleBannerComponent.openBanner();
+    }
+  }
+
+   // 🔹 Método para descargar la imagen
+   downloadImage(): void {
+    if (!this.imageDataUrl) {
+      console.error('No hay imagen disponible para descargar');
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = this.imageDataUrl;
+    link.download = 'raffle-banner.png';
+    link.click();
+  }
+
+  downloadBannerImage(): void {
+    if (this.raffleBannerComponent) {
+      this.raffleBannerComponent.downloadImage();
+    } else {
+      console.error('No se encontró el componente del banner');
+    }
+  }
+
+
 
 
    logout1(): void {
@@ -237,7 +278,7 @@ startCountdown(expiryDate: Date): void {
             localStorage.setItem(`rifas_${currentUser.id}`, rifasGuardadas);
           }
 
-          this.router.navigate(['/']);
+          this.router.navigate(['/login']);
           Swal.fire('¡Cerrado!', 'Tu sesión ha sido cerrada', 'success');
         }
       });
@@ -275,7 +316,7 @@ startCountdown(expiryDate: Date): void {
 
 
 
-  loadUserRaffles(): void {
+  loadUserRaffles1(): void {
     if (this.userId) {
       this.raffleService.getRafflesByUser(this.userId).subscribe({
         next: (raffles: Raffle[]) => {
@@ -289,6 +330,38 @@ startCountdown(expiryDate: Date): void {
               raffle.producto.imagenes = ['path/to/default/image.jpg'];
             }
           });
+
+          console.log('Rifas asociadas al usuario:', this.userRaffles);
+        },
+        error: (error) => {
+          console.error('Error al cargar las rifas:', error);
+        }
+      });
+    } else {
+      console.error('El userId no está definido.');
+    }
+  }
+
+
+  loadUserRaffles(): void {
+    if (this.userId) {
+      this.raffleService.getRafflesByUser(this.userId).subscribe({
+        next: (raffles: Raffle[]) => {
+          this.userRaffles = raffles;
+          this.updateRafflesByStatus();
+
+          // Asegúrate de que cada rifa tenga al menos una imagen válida
+          this.userRaffles.forEach(raffle => {
+            if (!raffle.producto.imagenes || raffle.producto.imagenes.length === 0) {
+              raffle.producto.imagenes = ['assets/images/default.jpg'];
+            }
+          });
+
+          // Por ejemplo, asigna la rifa más reciente como banner
+          if (this.userRaffles.length > 0) {
+            // Supón que la rifa creada más recientemente está al inicio
+            this.newlyCreatedRaffle = this.userRaffles[0];
+          }
 
           console.log('Rifas asociadas al usuario:', this.userRaffles);
         },
@@ -711,7 +784,7 @@ compartirRifa(raffle: any) {
 
 
 //Este es para controlar la calidad de las imagenes
-  onFileChange(event: Event, index: number) {
+  onFileChange1(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
@@ -749,6 +822,64 @@ compartirRifa(raffle: any) {
   }
 
 
+  onFileChange(event: Event, index: number) {
+    // Restricción: solo se permiten 4 imágenes en total.
+    // Si el índice es mayor o igual a 4, muestra un error y no procesa el archivo.
+    if (index >= 4) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Solo puedes subir 4 imágenes para el producto',
+        life: 1000
+      });
+      return;
+    }
+
+    // Adicionalmente, si el array de imágenes del producto ya tiene 4 elementos, muestra error.
+    if (this.productData.imagenes && this.productData.imagenes.length >= 4) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Solo puedes subir 4 imágenes para el producto',
+        life: 1000
+      });
+      return;
+    }
+
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        const maxWidth = 1024;  // Resolución máxima permitida
+        const maxHeight = 1024; // Resolución máxima permitida
+
+        if (img.width > maxWidth || img.height > maxHeight) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Advertencia',
+            detail: `La imagen supera la resolución permitida de ${maxWidth}x${maxHeight}px`,
+            life: 1000
+          });
+          input.value = ""; // Resetea el input
+        } else {
+          // Asigna el archivo al slot indicado
+          this.selectedFiles[index] = file;
+
+          // Lee la imagen para mostrar vista previa
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.previews[index] = e.target?.result as string;
+          };
+          reader.readAsDataURL(file);
+        }
+
+        URL.revokeObjectURL(img.src); // Libera memoria
+      };
+    }
+  }
 
 
 
@@ -777,7 +908,7 @@ compartirRifa(raffle: any) {
 
 
 
-onSubmit(): void {
+onSubmit0(): void {
   if (!this.validarFormularioRifa()) {
     console.error('El formulario no es válido.');
 
@@ -811,7 +942,8 @@ onSubmit(): void {
       imagenes: this.productData.imagenes,
     },
     active: true,
-    code: this.newRaffle.code
+    code: this.newRaffle.code,
+    precio: this.newRaffle.precio
   };
 
   console.log('Cuerpo de la solicitud:', requestBody);
@@ -879,6 +1011,161 @@ onSubmit(): void {
 
 }
 
+/*
+onSubmit1(): void {
+  if (!this.validarFormularioRifa()) {
+    console.error('El formulario no es válido.');
+    return;
+  }
+
+  if (!this.productData || !this.productData.nombre) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error en el producto',
+      detail: 'Debe agregar un producto correctamente antes de guardar la rifa.',
+      life: 2000
+    });
+    return;
+  }
+
+  if (this.isVip && !this.codigoVip) {
+    console.error('Código VIP no válido');
+    return;
+  }
+
+  const requestBody = {
+    nombre: this.newRaffle.nombre,
+    cantidadParticipantes: this.newRaffle.cantidadParticipantes,
+    fechaSorteo: this.newRaffle.fechaSorteo,
+    usuario: { id: this.userId },
+    producto: {
+      nombre: this.productData.nombre,
+      descripcion: this.productData.descripcion,
+      imagenes: this.productData.imagenes,
+    },
+    active: true,
+    code: this.newRaffle.code,
+    precio: this.newRaffle.precio
+  };
+
+  console.log('Cuerpo de la solicitud:', requestBody);
+
+  const createRaffle$ = this.isVip && this.codigoVip
+    ? this.raffleService.crearRifaConCodigoVip(requestBody, this.codigoVip)
+    : this.raffleService.crearRifa(requestBody);
+
+  createRaffle$
+    .pipe(
+      switchMap((response) => {
+        console.log('Rifa creada con éxito:', response);
+        this.activeRaffles.unshift(response);
+        return this.raffleService.generarImagenRifa(response.id);
+      }),
+      tap((imageUrl) => {
+        console.log('Imagen generada:', imageUrl);
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Rifa creada con su imagen generada.',
+          icon: 'success',
+          imageUrl: imageUrl, // Muestra la imagen generada en el modal
+          confirmButtonText: 'Aceptar',
+          customClass: { popup: 'my-swal-popup' }
+        });
+      })
+    )
+    .subscribe({
+      next: () => {
+        this.hideDialog();
+        this.resetFormulario();
+        this.productData = { nombre: '', descripcion: '', imagenes: [] };
+      },
+      error: (error) => {
+        console.error('Error al generar la imagen de la rifa:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo generar la imagen de la rifa.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+        });
+      },
+    });
+}*/
+
+onSubmit(): void {
+  if (!this.validarFormularioRifa()) {
+    console.error('El formulario no es válido.');
+    return;
+  }
+  if (!this.productData || !this.productData.nombre) {
+    this.messageService.add({ severity: 'error', summary: 'Error en el producto', detail: 'Debe agregar un producto correctamente antes de guardar la rifa.', life: 2000 });
+    return;
+  }
+  if (this.isVip && !this.codigoVip) {
+    console.error('Código VIP no válido');
+    return;
+  }
+
+  const requestBody = {
+    nombre: this.newRaffle.nombre,
+    cantidadParticipantes: this.newRaffle.cantidadParticipantes,
+    fechaSorteo: this.newRaffle.fechaSorteo,
+    usuario: { id: this.userId },
+    producto: {
+      nombre: this.productData.nombre,
+      descripcion: this.productData.descripcion,
+      imagenes: this.productData.imagenes
+    },
+    active: true,
+    code: this.newRaffle.code,
+    precio: this.newRaffle.precio
+  };
+
+  console.log('Cuerpo de la solicitud:', requestBody);
+
+  const createRaffle$ = this.isVip && this.codigoVip
+    ? this.raffleService.crearRifaConCodigoVip(requestBody, this.codigoVip)
+    : this.raffleService.crearRifa(requestBody);
+
+  createRaffle$
+    .pipe(
+      tap((response) => {
+        console.log('Rifa creada con éxito:', response);
+        this.activeRaffles.unshift(response);
+        this.newlyCreatedRaffle = response; // Guardamos la rifa creada para el banner
+        console.log('Datos de la rifa en newlyCreatedRaffle:', this.newlyCreatedRaffle);
+        this.loadUserId();
+      })
+    )
+    .subscribe({
+      next: () => {
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Rifa creada y añadida a las rifas activas.',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+          customClass: { popup: 'my-swal-popup' }
+        });
+        this.hideDialog();
+        this.resetFormulario();
+        this.productData = { nombre: '', descripcion: '', imagenes: [] };
+      },
+      error: (error) => {
+        console.error('Error al crear la rifa:', error);
+        let errorMessage = 'No se pudo crear la rifa. Por favor, inténtelo nuevamente.';
+        if (typeof error === 'string') {
+          errorMessage = error;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        if (errorMessage.includes('Has alcanzado el límite de rifas permitidas.')) {
+          Swal.fire({ title: 'Límite alcanzado', text: 'Ya has alcanzado el número máximo de rifas permitidas según tu código VIP.', icon: 'warning', confirmButtonText: 'Aceptar' });
+        } else {
+          Swal.fire({ title: 'Error', text: errorMessage, icon: 'error', confirmButtonText: 'Aceptar' });
+        }
+      },
+    });
+}
+
 
 
 // Método reutilizable para mostrar mensajes
@@ -935,6 +1222,7 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
           usuario: this.userId,
           producto: {} as Producto,
           active: true,
+          precio: 0
         };
 
         // Solo borrar el código VIP si el usuario NO es VIP
@@ -1221,7 +1509,7 @@ private mostrarMensaje(icono: 'success' | 'error' | 'warning', titulo: string, m
       eliminarParticipante(id: number): void {
         Swal.fire({
           title: '¿Estás seguro?',
-          text: 'Esta seguro que desea eliminar este usuario',
+          text: 'Esta seguro que desea eliminar este participante',
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: '#d33',

@@ -1,4 +1,5 @@
-<button (click)="toggleTheme()" class="theme-toggle-button">
-  <i class="pi" [ngClass]="isDarkMode ? 'pi-sun' : 'pi-moon'"></i>
-</button>
 
+
+<div class="floating-switch">
+  <p-inputSwitch [(ngModel)]="checked" (click)="onThemeChange(checked ? 'dark' : 'light')"></p-inputSwitch>
+</div>

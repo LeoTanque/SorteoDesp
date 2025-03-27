@@ -77,7 +77,7 @@ export class LoginComponent implements OnInit {
           .then(
             () => {
               this.registerForm.reset();
-              this.router.navigate(['']);
+              this.router.navigate(['login']);
             });
           },
           (error) => {

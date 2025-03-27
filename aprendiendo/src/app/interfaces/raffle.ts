@@ -14,5 +14,5 @@ export interface Raffle {
   //codigoVip?: string;
   code?: string;
   codigoVip?: CodigoVip
-
+  precio: number;
 }
