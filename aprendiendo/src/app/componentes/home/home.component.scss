@@ -86,6 +86,70 @@ section {
 }
 
 
+
+
+nav {
+  ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+/* Estilos para el botón de menú (hamburguesa) */
+
+
+.nav-responsive {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  z-index: 1000; /* Muy alto para asegurarse de estar por encima */
+  cursor: pointer;
+  //font-size: 2rem;
+  color: #fff;
+}
+
+
+nav.responsive {
+  position: absolute;
+  top: 60px; /* Ajusta según el alto del header */
+  right: 20px; /* Se posiciona a 20px del lado derecho */
+  width: auto; /* Se ajusta al contenido */
+  background: #1e2326;
+  padding: 1rem;
+  border-radius: 8px;
+  z-index: 500;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* o center, según prefieras */
+    gap: 0.5rem;
+  }
+
+  li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+  }
+
+  li a:hover {
+    color: #1cb698;
+  }
+}
+
+
+
+
+
+
+
+
+
 @media (max-width: 768px) {
   .logo-container {
     font-size: 1.4rem;
@@ -304,9 +368,9 @@ section {
 
 
 .image-container img {
- // width: 200px;
-  max-width: 250px;
-  height: 100px;
+  //width: 600px;
+  max-width: 600px;
+  height: 200px;
   border-radius: 10px;
 }
 
@@ -436,7 +500,7 @@ section:not(:last-of-type)::after {
 
 /* Imágenes se adaptan al 100% del contenedor */
 .image-container img {
-  max-width: 200px; /* O el valor que se ajuste mejor */
+  max-width: 350px; /* O el valor que se ajuste mejor */
 }
 
 /* Ajusta el tamaño de fuente si es necesario */

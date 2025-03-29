@@ -42,6 +42,7 @@ export class HomeComponent  implements OnInit{
 
   mostrarOcultarMenu(): void {
     this.menuVisible = !this.menuVisible;
+    console.log('menuVisible:', this.menuVisible);
   }
 
   seleccionar(): void {

@@ -368,6 +368,7 @@ p{
   border-radius: 4px;
   margin: 0 5px;
   min-width: 40px;
+  width: 100%;
   text-align: center;
 }
 
@@ -382,14 +383,14 @@ p{
 }
 
 .sidebar-buttons {
-  width: 100%; /* Hace que todos los botones ocupen el mismo ancho */
+  //width: 100%; /* Hace que todos los botones ocupen el mismo ancho */
   display: flex;
   justify-content: center;
   margin: 10px;
 }
 
 .sidebar-buttons button {
-  width: 40%; /* Hace que todos los botones tengan el mismo ancho */
+  width: 100%; /* Hace que todos los botones tengan el mismo ancho */
   height: 40px; /* Ajusta la altura a un valor uniforme */
   font-size: 1rem; /* Ajusta el tamaño de fuente si es necesario */
 }

@@ -910,12 +910,12 @@ compartirRifa(raffle: any) {
   onFileChange(event: Event, index: number) {
     // Restricción: solo se permiten 4 imágenes en total.
     // Si el índice es mayor o igual a 4, muestra un error y no procesa el archivo.
-    if (index >= 4) {
+    if (index >= 3) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
         detail: 'Solo puedes subir 4 imágenes para el producto',
-        life: 1000
+        life: 3000
       });
       return;
     }
@@ -926,7 +926,7 @@ compartirRifa(raffle: any) {
         severity: 'error',
         summary: 'Error',
         detail: 'Solo puedes subir 4 imágenes para el producto',
-        life: 1000
+        life: 3000
       });
       return;
     }
@@ -946,7 +946,7 @@ compartirRifa(raffle: any) {
             severity: 'error',
             summary: 'Advertencia',
             detail: `La imagen supera la resolución permitida de ${maxWidth}x${maxHeight}px`,
-            life: 1000
+            life: 3000
           });
           input.value = ""; // Resetea el input
         } else {
