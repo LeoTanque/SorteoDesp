@@ -18,12 +18,12 @@
 }
 
 .p-card {
-  transition: transform 0.3s ease,
-  box-shadow 0.3s ease;
+  //transition: transform 0.3s ease,
+  //box-shadow 0.3s ease;
   cursor: pointer;
 }
 .p-card:hover {
-  transform: scale(1.05);
+ // transform: scale(1.05);
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.897);
 }
 
@@ -98,7 +98,7 @@
 
 .floating-button {
   position: fixed;
-  top: 38px;  /* Ajusta según necesites */
+  top: 120px;  /* Ajusta según necesites */
   left: 10px; /* Ajusta según necesites */
   z-index: 1000; /* Asegura que se muestre por encima de otros elementos */
 }
@@ -149,6 +149,7 @@
   }
 }
 
+/*
 @media only screen and (max-width: 480px) {
   .p-dialog {
     width: 100% !important;
@@ -161,6 +162,30 @@
 
   .col-6 {
     width: 100%;
+  }
+}
+*/
+
+@media only screen and (max-width: 480px) {
+  .p-dialog {
+    width: 100% !important;
+    margin: 0 auto;
+  }
+
+  .flex {
+    flex-direction: row !important; /* Alinea los elementos en fila */
+    justify-content: center !important; /* Centra los elementos horizontalmente */
+    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea si no hay espacio */
+    gap: 10px; /* Agrega un pequeño espacio entre los botones */
+  }
+
+  .col-6 {
+    width: auto; /* Permite que los botones ocupen su tamaño natural */
+  }
+
+  .flex button {
+    flex: 1; /* Hace que los botones tengan un tamaño uniforme */
+    max-width: 150px; /* Ajusta el tamaño máximo para que no sean demasiado grandes */
   }
 }
 
@@ -177,7 +202,7 @@
   }
 
   .p-button.p-button-sm {
-    font-size: 0.5rem;
+    font-size: 1rem;
     padding: 0.5rem 1.09375rem;
   }
   .flex {
@@ -310,7 +335,7 @@ p{
 
 .link {
   text-decoration: none;
-  color: #778899; /* Azul similar a enlaces */
+  color: #151516; /* Azul similar a enlaces */
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -323,9 +348,28 @@ p{
   text-decoration: underline;
 }
 
-.raffle-code1 {
-  background-color: #f8f9fa;
-  color: #333;
+.raffle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap; /* Permite que los elementos se acomoden en pantallas pequeñas */
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.raffle-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1rem;
+  text-decoration: none;
+  color: #3c4249;
+  font-weight: bold;
+}
+
+/*.raffle-code1 {
+  background-color: #51575e;
+  color: #ece7e7;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 5px 10px;
@@ -334,8 +378,23 @@ p{
   align-items: center;
   gap: 5px;
   cursor: pointer;
-}
+}*/
 
+.raffle-code1 {
+  background-color: #51575e;
+  color: #ece7e7;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 120px; /* Evita que el botón se haga demasiado pequeño */
+  justify-content: center;
+}
 .raffle-code:hover {
   background-color: #e2e6ea;
 }
@@ -394,3 +453,150 @@ p{
   height: 40px; /* Ajusta la altura a un valor uniforme */
   font-size: 1rem; /* Ajusta el tamaño de fuente si es necesario */
 }
+
+
+
+.floating-button-container {
+  position: fixed;
+  bottom: 20px;          /* Ajusta la distancia desde la parte inferior */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;         /* Para que esté por encima de otros elementos */
+}
+
+
+@media screen and (max-width: 600px) {
+  .raffle-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .raffle-link {
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .raffle-code1 {
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+}
+
+
+
+
+.format-toolbar button,
+.format-toolbar p-dropdown,
+.format-toolbar input[type="number"],
+.format-toolbar input[type="color"] {
+  margin: 5px;
+  text-align: center;
+}
+
+/* Contenedor global del toolbar de formato */
+.format-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Grupo de botones (para formato básico y alineación) */
+.button-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Tres columnas iguales */
+  gap: 0.5rem;
+  margin-bottom: 15px;
+
+}
+
+/* Grupo de controles adicionales (opciones de fuente, tamaño y color) */
+.options-group {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilos para el editor modal */
+.editable {
+  min-height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow: auto;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 600px) {
+  .button-group {
+    grid-template-columns: repeat(3, 1fr); /* O puedes dejarlo en 3 columnas si lo prefieres */
+
+  }
+  .options-group {
+    flex-direction: column;
+
+  }
+  .editable {
+    min-height: 120px !important;
+  }
+
+  .options-group p {
+    font-size: 12px;
+  }
+}
+
+/* Sobrescribe el font-size de los botones en pantallas pequeñas */
+@media (max-width: 600px) {
+  .button-group .p-button {
+    font-size: 8px !important; /* Ajusta el valor según tus necesidades */
+    //padding: 0.3rem 0.5rem !important; /* Opcional: reducir también el padding */
+  }
+}
+
+/* Contenedor de la imagen del carrusel */
+.image-wrapper {
+  border: 1px solid var(--surface-border); /* O un color fijo, p.ej.: #ccc */
+  border-radius: 0.5rem;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilo base para la imagen del carrusel */
+.carousel-img {
+  width: 100%;        /* Ocupa el 100% del ancho del contenedor */
+  height: auto;
+  object-fit: cover;
+  max-height: 150px;  /* Mantiene la altura máxima en 150px */
+  transition: width 0.3s ease-in-out; /* Transición para cambios en pantalla */
+}
+
+/* Cuando la pantalla es pequeña, se expande el ancho de la imagen */
+@media (max-width: 600px) {
+  .carousel-img {
+    width: 120%; /* Ajusta este porcentaje según lo que necesites para "ocupar más ancho" */
+  }
+}
+
+.winning-number {
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+  color: #d9534f; /* Color rojo para destacar el número ganador */
+  font-weight: bold;
+}
+
+.winning-info {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #d9534f; /* Rojo para destacar */
+  font-weight: bold;
+}
+
+
+

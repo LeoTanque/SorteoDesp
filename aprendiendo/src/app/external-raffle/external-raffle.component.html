@@ -24,7 +24,7 @@
       <p-button
         label="Ver descripción del producto"
         severity="primary"
-        styleClass="custom-button p-button-lg "
+        styleClass="custom-button"
         (onClick)="showDialog()">
       </p-button>
     </div>
@@ -54,12 +54,37 @@
   [style]="{ width: '50rem' }"
   [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
   [maximizable]="true">
-  <p>{{ raffle.producto.descripcion }}</p>
+  <!--p>{{ raffle.producto.descripcion }}</!--p-->
+  <div class="formatted-description" [innerHTML]="raffle.producto.descripcion"></div>
 </p-dialog>
+
 <div class="view-participants">
   <p-button label="Ver participantes"  styleClass="custom-button1" severity="info" (onClick)="mostrarDatosP()"></p-button>
 </div>
+
+<!--app-countdown-- *ngIf="showCountdown" [start]="countdownValue || 0" (finished)="onCountdownFinishedExternal()"></!--app-countdown-->
+<app-countdown *ngIf="showCountdown" [start]="5" (finished)="onCountdownFinishedExternal()"></app-countdown>
+<!--div-- *ngIf="!showCountdown && winningNumber !== null" class="winning-number">
+  <h2>Número ganador: {{ winningNumber }}</h2>
+</!--div-->
+
+<div *ngIf="!showCountdown && winningNumber !== null" class="winning-number">
+  <h2>Número ganador: {{ winningNumber }}</h2>
+  <p>Ganador: {{ winningParticipant || 'No reservado' }}</p>
 </div>
+
+
+
+<!--div *ngIf="getWinningEntry(raffle.id) as winnerEntry" class="winning-number">
+  <h2>Número ganador: {{ winnerEntry.winningNumber }}</h2>
+  <p>Ganador: {{ winnerEntry.winningParticipant }}</p>
+</div-->
+
+
+</div>
+
+<!--app-countdown *ngIf="showCountdown" [start]="5" (finished)="onCountdownFinishedExternal()"></app-countdown-->
+
 
 <!-- Botón para ver participantes -->
 
@@ -122,20 +147,59 @@
         <ng-container *ngIf="reservationForm.get('phone')?.hasError('pattern')">El formato debe ser 99-99999999.</ng-container>
       </small>
 
-      <input type="text" pInputText placeholder="DNI" formControlName="dni" />
-      <small class="error" *ngIf="isInvalid('dni')">El DNI es obligatorio.</small>
+      <!--input type="text" pInputText placeholder="DNI" formControlName="dni" />
+      <small-- class="error" *ngIf="isInvalid('dni')">El DNI es obligatorio.</small-->
 
-      <input type="text" pInputText placeholder="Código" formControlName="code" />
-      <small class="error" *ngIf="isInvalid('code')">
+      <!--input type="text" pInputText placeholder="Código de reserva" formControlName="code" />
+      <small-- class="error" *ngIf="isInvalid('code')">
         <ng-container *ngIf="reservationForm.get('code')?.hasError('required')">El código es obligatorio.</ng-container>
         <ng-container *ngIf="reservationForm.get('code')?.hasError('incorrectCode')">Código incorrecto, verifica e intenta de nuevo.</ng-container>
-      </small>
+      </small-->
 
-      <input type="text" pInputText formControlName="reservedNumber" />
+
+        <div class="input-with-info">
+          <input
+            type="text"
+            pInputText
+            placeholder="Código de reserva"
+            formControlName="code"
+            class="code-input" />
+          <p-button
+            icon="pi pi-info-circle"
+            styleClass="info-button p-button-text"
+            (click)="showInfo()">
+          </p-button>
+        </div>
+        <small class="error" *ngIf="isInvalid('code')">
+          <ng-container *ngIf="reservationForm.get('code')?.hasError('required')">
+            El código es obligatorio.
+          </ng-container>
+          <ng-container *ngIf="reservationForm.get('code')?.hasError('incorrectCode')">
+            Código incorrecto, verifica e intenta de nuevo.
+          </ng-container>
+        </small>
+
+
+
+
+      <!--input type="text" pInputText formControlName="reservedNumber" /-->
     </div>
     <div class="modal-buttons">
-      <p-button label="Cancelar" (click)="closeModal()" severity="secondary"></p-button>
+      <p-button label="Cancelar" (click)="closeModal()" severity="danger"></p-button>
       <p-button type="submit" label="Reservar" severity="primary" [disabled]="reservationForm.invalid"></p-button>
     </div>
   </form>
+</p-dialog>
+
+
+<p-dialog
+    header="Información"
+    [modal]="true"
+    [(visible)]="info"
+    [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [maximizable]="true">
+        <p>
+            Para poder reservar necesita el código único referente a la rifa, y para obtener este código necesita ponerse en contacto con el administrador de la rifa.
+        </p>
 </p-dialog>

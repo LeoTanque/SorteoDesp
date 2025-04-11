@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Raffle } from '../interfaces/raffle';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RaffleService } from '../services/raffle.service';
 import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
@@ -13,16 +13,21 @@ import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModu
 import { InputMaskModule } from 'primeng/inputmask';
 import { Participante } from '../interfaces/participante';
 import { ParticipanteService } from '../services/participante.service';
+import Swal from 'sweetalert2';
+import { CountdownComponent } from "../componentes/countdown/countdown.component";
+import { RaffleExecutionService } from '../services/raffle-execution.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-external-raffle',
   standalone: true,
   imports: [CommonModule, RouterModule, CarouselModule, ButtonModule, TagModule, DialogModule, TableModule, InputTextModule,
-      FormsModule, ReactiveFormsModule, InputMaskModule],
+    FormsModule, ReactiveFormsModule, InputMaskModule, CountdownComponent],
   templateUrl: './external-raffle.component.html',
   styleUrl: './external-raffle.component.scss'
 })
 export class ExternalRaffleComponent implements OnInit{
+
 
   //raffle: Raffle | null = null;
   raffle: any = null;
@@ -31,25 +36,36 @@ export class ExternalRaffleComponent implements OnInit{
   visible: boolean = false;
   participantes: Participante[] = [];
   datosParticipantes: boolean = false;
+  info:boolean = false;
   displayModal: boolean = false;
   reservationForm!: FormGroup;
   availableNumbers = Array.from({ length: 10 }, (_, i) => i + 1); // [1, 2, ..., 10]
   numerosReservados: number[] = [];
   selectedNumber: number = 0;
   raffleCode: any;
+  private storageListener = this.onStorageEvent.bind(this);
+  showCountdown: boolean = false;
+  countdownValue: number | null = null;
+  winningNumber: number | null = null;
+  winningParticipant: string | null = null;
+  winningData: { raffleId: number; winningNumber: number; winningParticipant: string }[] = [];
 
 
 
+  winningRaffleId: number | null = null;
+
+
+  private subscription!: Subscription;
   constructor(
     private route: ActivatedRoute,
     private rifaService: RaffleService,
-    private fb: FormBuilder,
+    private fb: FormBuilder, private router:Router,   private raffleExecutionService: RaffleExecutionService,
     private participanteService: ParticipanteService) {
       this.reservationForm = this.fb.group({
         name: ['', Validators.required],
         lastName: ['', Validators.required],
         phone: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{6,8}$/)]],
-        dni: ['', Validators.required],
+        //dni: ['', Validators.required],
        // code: ['', [Validators.required, this.validateRaffleCode.bind(this)]], // Validación correcta
         code: ['', Validators.required],
         reservedNumber: [{ value: '', disabled: true }, Validators.required]
@@ -83,6 +99,29 @@ export class ExternalRaffleComponent implements OnInit{
 
 
 
+          // Suscribirse al observable del servicio de cuenta regresiva
+    this.subscription = this.raffleExecutionService.countdown$.subscribe(value => {
+      if (value !== null) {
+        this.countdownValue = value;
+        this.showCountdown = true;
+      } else {
+        this.showCountdown = false;
+      }
+      console.log('Contador recibido por servicio:', value);
+      if (value === 1) {
+        // Cuando llegue a 0, recarga la información ganadora
+        this.loadWinningInfo();
+      }
+    });
+
+      // Escuchar cambios en localStorage para el contador
+      window.addEventListener('storage', this.storageListener);
+
+      this.loadWinningInfo();
+
+
+
+
     this.responsiveOptions = [
       {
           breakpoint: '1400px',
@@ -105,6 +144,28 @@ export class ExternalRaffleComponent implements OnInit{
 
 
 
+
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    window.removeEventListener('storage', this.storageListener);
+  }
+
+  private onStorageEvent(event: StorageEvent): void {
+    if (event.key === 'countdown') {
+      const newValue = event.newValue;
+      if (newValue !== null) {
+        const count = parseInt(newValue, 10);
+        this.countdownValue = count;
+        this.showCountdown = true;
+      } else {
+        this.showCountdown = false;
+      }
+      console.log('Contador actualizado desde localStorage:', event.newValue);
+    }
   }
 
 
@@ -126,21 +187,7 @@ isInvalid(field: string): boolean {
 
 
 
-  cargarRifa1(id: number): void {
-    this.rifaService.obtenerRifaPorId(id).subscribe({
-      next: (data) => {
-        this.raffle = data;
-        console.log('Datos de la rifa cargada:', this.raffle);
-        this.raffleCode = this.raffle?.code ?? '';
-        console.log('Codigo de la rifa:', this.raffleCode);
-        if (this.raffle && this.raffle.cantidadParticipantes) {
-          this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
-        }
 
-      },
-      error: (err) => console.error('Error al cargar la rifa:', err)
-    });
-  }
 
 
   async cargarRifa(id: number) {
@@ -159,6 +206,22 @@ isInvalid(field: string): boolean {
   }
 
 
+  loadRaffle(): void {
+    if (this.raffleId !== null) {
+      this.rifaService.obtenerRifaPorId(this.raffleId).subscribe({
+        next: (data: Raffle) => {
+          this.raffle = data;
+          console.log('🎟️ Código de la rifa obtenido:', data);
+          if (this.raffle && this.raffle.cantidadParticipantes) {
+            this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
+          }
+        },
+        error: (error) => {
+          console.error('Error al cargar la rifa:', error);
+        }
+      });
+    }
+  }
 
   initializeForm() {
     this.reservationForm.get('code')?.setValidators([
@@ -177,6 +240,9 @@ isInvalid(field: string): boolean {
       this.datosParticipantes = true;
     }
 
+    showInfo() {
+      this.info = true
+      }
 
     openModal(number: number) {
       this.selectedNumber = number;
@@ -224,25 +290,48 @@ isInvalid(field: string): boolean {
     }
 
 
-    saveData() {
+
+
+    saveData(): void {
       if (this.reservationForm.valid) {
-        // Crea el objeto de reserva e incluye el id de la rifa
         const newReservation: Participante = {
           ...this.reservationForm.getRawValue(),
-          raffleId: this.raffleId // Asigna el id obtenido de la URL
+          raffleId: this.raffleId  // Asigna el id obtenido de la URL
         };
+
         this.participanteService.createParticipante(newReservation).subscribe({
           next: (data) => {
             console.log('✅ Datos enviados:', data);
-            // Actualiza la lista de participantes para esta rifa
             this.loadParticipantes(Number(this.raffleId));
             this.reservationForm.reset();
             this.displayModal = false;
+            Swal.fire({
+              icon: 'success',
+              title: '¡Reserva exitosa!',
+              text: 'Tu número ha sido reservado correctamente.',
+              confirmButtonText: 'Aceptar'
+            });
           },
-          error: (err) => console.error('Error al enviar datos al API:', err)
+          error: (err) => {
+            console.error('Error al enviar datos al API:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo reservar el número. Por favor, inténtalo de nuevo.',
+              confirmButtonText: 'Aceptar'
+            });
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Formulario inválido',
+          text: 'Por favor, completa todos los campos requeridos.',
+          confirmButtonText: 'Aceptar'
         });
       }
     }
+
 
     closeModal() {
       this.reservationForm.reset(); // 🔄 Resetea el formulario al cerrar sin enviar
@@ -252,4 +341,113 @@ isInvalid(field: string): boolean {
     isReserved(num: number): boolean {
       return this.numerosReservados.includes(num);
     }
+
+
+
+
+onCountdownFinishedExternal(): void {
+  // Recupera la información ganadora del localStorage
+  const storedData = localStorage.getItem('winningData');
+  if (storedData) {
+    try {
+      const winningDataArray = JSON.parse(storedData);
+      this.winningData = winningDataArray;
+      const currentWinner = this.getWinningEntry(this.raffle?.id);
+      if (currentWinner) {
+        this.winningNumber = currentWinner.winningNumber;
+        this.winningParticipant = currentWinner.winningParticipant;
+        console.log('Número ganador en ExternalRaffleComponent:', this.winningNumber);
+        console.log('Ganador:', this.winningParticipant);
+        Swal.fire({
+          title: 'Sorteo Ejecutado!',
+          text: 'El número ganador es: ' + this.winningNumber +
+                (this.winningParticipant ? ('. Ganador: ' + this.winningParticipant) : '. Este número no fue reservado.'),
+          icon: 'success',
+          confirmButtonText: 'Aceptar'
+        });
+      } else {
+        console.log('No hay información de ganador para esta rifa.');
+      }
+    } catch (error) {
+      console.error('Error al parsear winningData:', error);
+    }
+  } else {
+    console.log('No se encontró información de ganadores en localStorage.');
+  }
+}
+
+
+
+
+loadWinningInfo0(): void {
+  const storedData = localStorage.getItem('winningData');
+  let data: any[] = [];
+  if (storedData) {
+    try {
+      data = JSON.parse(storedData);
+      if (!Array.isArray(data)) {
+        data = [];
+      }
+    } catch (error) {
+      console.error('Error al parsear winningData:', error);
+      data = [];
+    }
+  }
+  this.winningData = data;
+  console.log('Información de ganadores cargada:', this.winningData);
+  // Si la rifa actual tiene una entrada, actualiza las propiedades locales
+  if (this.raffle && this.raffle.id) {
+    const currentWinner = this.getWinningEntry(this.raffle.id);
+    if (currentWinner) {
+      this.winningNumber = currentWinner.winningNumber;
+      this.winningParticipant = currentWinner.winningParticipant;
+    } else {
+      this.winningNumber = null;
+      this.winningParticipant = null;
+    }
+  }
+}
+
+
+loadWinningInfo(): void {
+  const storedData = localStorage.getItem('winningData');
+  let data: any[] = [];
+  if (storedData) {
+    try {
+      data = JSON.parse(storedData);
+      if (!Array.isArray(data)) {
+        data = [];
+      }
+    } catch (error) {
+      console.error('Error al parsear winningData:', error);
+      data = [];
+    }
+  }
+  this.winningData = data;
+  console.log('Información de ganadores cargada:', this.winningData);
+  // Si la rifa actual tiene una entrada, asigna sus datos
+  if (this.raffle && this.raffle.id) {
+    const entry = this.getWinningEntry(this.raffle.id);
+    if (entry) {
+      this.winningNumber = entry.winningNumber;
+      this.winningParticipant = entry.winningParticipant;
+    } else {
+      this.winningNumber = null;
+      this.winningParticipant = null;
+    }
+  }
+}
+
+ // Método para obtener la entrada ganadora para una rifa
+ getWinningEntry(raffleId: number): { raffleId: number, winningNumber: number, winningParticipant: string } | null {
+  if (!this.winningData || this.winningData.length === 0) {
+    return null;
+  }
+  const entry = this.winningData.find(e => e.raffleId === raffleId);
+  return entry ? entry : null;
+}
+
+
+
+
 }

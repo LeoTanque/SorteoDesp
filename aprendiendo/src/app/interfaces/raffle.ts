@@ -5,7 +5,7 @@ import { User } from "./user";
 export interface Raffle {
   id?: number;
   nombre: string; // Nombre de la rifa (obligatorio)
-  cantidadParticipantes: number; // Cantidad de participantes (obligatorio)
+  cantidadParticipantes: any; // Cantidad de participantes (obligatorio)
   fechaSorteo: Date; // Fecha del sorteo (obligatorio)
   //usuario: User; // Usuario asociado (obligatorio)
   usuario: { id: number };
@@ -14,5 +14,5 @@ export interface Raffle {
   //codigoVip?: string;
   code?: string;
   codigoVip?: CodigoVip
-  precio: number;
+  precio: any;
 }

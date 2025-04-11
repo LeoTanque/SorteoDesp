@@ -1,5 +1,5 @@
 //@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
-
+/*
 * {
   box-sizing: border-box;
 }
@@ -232,6 +232,98 @@ input {
   margin: 0 5px;
   height: 40px;
   width: 40px;
+}*/
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  //background: linear-gradient(to right, #ff4b2b, #ff416c);
+
+
+
+
 }
 
+.auth-card {
+  background: #d2c6c6;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25),
+              0 10px 10px rgba(0,0,0,0.22);
+
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 1rem;
+
+}
+
+.logo {
+  max-width: 120px;    /* Tamaño máximo para pantallas grandes */
+  width: 100%;         /* Se adapta al ancho del contenedor */
+  height: auto;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.auth-card h1 {
+  color: #672433;
+  margin-bottom: 0.5rem;
+}
+
+.auth-card span {
+  color: #555;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.auth-card input {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  //background-color: #f2f2f2;
+}
+
+.auth-card a {
+  font-size: 14px;
+  color: #ff4b2b;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.toggle-text {
+  margin-top: 1rem;
+  font-size: 14px;
+  color: #495555;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-card h1 {
+    font-size: 1.5rem;
+  }
+
+  .auth-card input {
+    padding: 0.6rem;
+  }
+
+  .logo {
+    max-width: 80px; /* Reduce el tamaño del logo en pantallas pequeñas */
+  }
+}
 

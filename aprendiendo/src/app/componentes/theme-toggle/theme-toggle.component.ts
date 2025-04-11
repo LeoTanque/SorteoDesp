@@ -48,6 +48,10 @@ export class ThemeToggleComponent implements OnInit{
           });
   }
 
+  toggleTheme() {
+    this.checked = !this.checked;
+    this.onThemeChange(this.checked ? 'dark' : 'light');
+  }
 
   onThemeChange(theme: string): void {
     this.selectedTheme = theme;

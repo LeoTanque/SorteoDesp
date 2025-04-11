@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   recoveryEmail: string = ''
   displayDialog: boolean = false;
-
+  isLogin: boolean = true;
   togglePanel() {
     this.rightPanelActive = !this.rightPanelActive;
   }
@@ -62,6 +62,9 @@ export class LoginComponent implements OnInit {
     this.displayDialog = true;
   }
 
+  toggle() {
+    this.isLogin = !this.isLogin;
+  }
 
   onSignup(): void {
     if (this.registerForm.valid) {
@@ -230,6 +233,8 @@ export class LoginComponent implements OnInit {
           { next:
             () => {
               Swal.fire({ icon: 'success', title: 'Correo Enviado', text: 'Se ha enviado un correo de recuperación a tu dirección de correo electrónico.' }); this.hideDialog(); }, error: () => { Swal.fire({ icon: 'error', title: 'Error', text: 'Hubo un problema al enviar el correo de recuperación. Por favor, inténtalo de nuevo.' }); } });}}
+
+
 
 
 
