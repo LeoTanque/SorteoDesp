@@ -98,7 +98,7 @@
 
 .floating-button {
   position: fixed;
-  top: 120px;  /* Ajusta según necesites */
+  top: 15px;  /* Ajusta según necesites */
   left: 10px; /* Ajusta según necesites */
   z-index: 1000; /* Asegura que se muestre por encima de otros elementos */
 }
@@ -506,7 +506,7 @@ p{
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Tres columnas iguales */
   gap: 0.5rem;
-  margin-bottom: 15px;
+ // margin-bottom: 15px;
 
 }
 
@@ -516,6 +516,7 @@ p{
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* Estilos para el editor modal */
@@ -530,16 +531,54 @@ p{
   margin-bottom: 1rem;
 }
 
+/* Contenedor que envuelve el editor para poder posicionar el botón sobre él */
+.editor-container {
+  position: relative;
+}
+
+/* Estilos para el área editable */
+.editable {
+  min-height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow: auto;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+/* Botón de formato posicionado en la esquina inferior izquierda */
+.format-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  padding: 0.3rem; /* Ajusta el padding para que el botón sea pequeño */
+  min-width: auto;
+ // border-radius: 50%;
+  z-index: 10;
+  /* Opcional: Puedes ajustar el tamaño del ícono */
+  font-size: 1.2rem;
+}
+
+/* Responsividad: reduce el tamaño del botón en pantallas más pequeñas */
+@media (max-width: 600px) {
+  .format-button {
+    font-size: 1rem;
+    padding: 0.2rem;
+  }
+}
+
+
+
+
 /* Responsividad para pantallas pequeñas */
 @media (max-width: 600px) {
   .button-group {
     grid-template-columns: repeat(3, 1fr); /* O puedes dejarlo en 3 columnas si lo prefieres */
 
   }
-  .options-group {
-    flex-direction: column;
 
-  }
   .editable {
     min-height: 120px !important;
   }
@@ -552,7 +591,7 @@ p{
 /* Sobrescribe el font-size de los botones en pantallas pequeñas */
 @media (max-width: 600px) {
   .button-group .p-button {
-    font-size: 8px !important; /* Ajusta el valor según tus necesidades */
+    font-size: 10px !important; /* Ajusta el valor según tus necesidades */
     //padding: 0.3rem 0.5rem !important; /* Opcional: reducir también el padding */
   }
 }
@@ -598,5 +637,47 @@ p{
   font-weight: bold;
 }
 
+/*
+@media (max-width: 480px) {
+  .upload-slot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-file-upload {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .delete-button {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}
+*/
 
 
+@media (max-width: 480px) {
+
+  .upload-slot-grid{
+    gap: 0.5rem;
+  }
+  /* Opcional: Reducir tamaños de botones y fuentes */
+  .custom-file-upload {
+    padding: 8px 8px;
+    font-size: 8px;
+
+  }
+  .delete-button {
+    font-size: 8px;
+  }
+
+  .custom-file-upload[_ngcontent-ng-c1042089590] i[_ngcontent-ng-c1042089590] {
+    font-size: 8px;
+}
+
+.sub {
+
+  max-width: 150px; /* Ajusta el tamaño máximo para que no sean demasiado grandes */
+  font-size: 8px;
+}
+}

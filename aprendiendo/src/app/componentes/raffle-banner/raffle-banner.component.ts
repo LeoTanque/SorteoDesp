@@ -4,6 +4,7 @@ import html2canvas from 'html2canvas';
 import { Raffle } from '../../interfaces/raffle';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-raffle-banner',
@@ -22,9 +23,13 @@ export class RaffleBannerComponent  implements AfterViewInit{
 
   imageDataUrl: string | null = null;
   displayModal: boolean = false;
+  safeDescription!: SafeHtml;
+
+  constructor(private sanitizer: DomSanitizer) { }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.captureBanner(), 2000);
+    this.loadDescription();
   }
 
   captureBanner(): void {
@@ -41,64 +46,6 @@ export class RaffleBannerComponent  implements AfterViewInit{
     });
   }
 
-  captureBannerx(): void {
-    if (!this.banner || !this.banner.nativeElement) {
-      console.error('Error: Elemento banner no encontrado');
-      return;
-    }
-
-    // Asegurar que todas las imágenes tengan CORS habilitado
-    const imgs = this.banner.nativeElement.getElementsByTagName('img');
-    for (let img of imgs) {
-      img.crossOrigin = "anonymous";
-    }
-
-    html2canvas(this.banner.nativeElement, {
-      allowTaint: true,
-      useCORS: true,
-      foreignObjectRendering: true
-    })
-      .then(canvas => {
-        this.imageDataUrl = canvas.toDataURL('image/png');
-        console.log('Banner capturado:', this.imageDataUrl);
-      })
-      .catch(error => {
-        console.error('Error capturando el banner:', error);
-      });
-  }
-
-  captureBanner1(): void {
-    setTimeout(() => {
-      if (!this.banner || !this.banner.nativeElement) {
-        console.error('Error: Elemento banner no encontrado');
-        return;
-      }
-
-      // Aseguramos un fondo blanco en el contenedor del banner
-      this.banner.nativeElement.style.backgroundColor = '#ffffff';
-
-      // Aseguramos que las imágenes tengan CORS habilitado
-      const imgs = this.banner.nativeElement.getElementsByTagName('img');
-      for (let img of imgs) {
-        img.crossOrigin = "anonymous";
-      }
-
-      html2canvas(this.banner.nativeElement, {
-        allowTaint: true,
-        useCORS: true,
-        foreignObjectRendering: true,
-        backgroundColor: "#ffffff" // Fuerza un fondo blanco en la captura
-      })
-      .then(canvas => {
-        this.imageDataUrl = canvas.toDataURL('image/png');
-        console.log('Banner capturado:', this.imageDataUrl);
-      })
-      .catch(error => {
-        console.error('Error capturando el banner:', error);
-      });
-    }, 500);
-  }
-
 
   openBanner(): void {
     this.displayModal = true;
@@ -113,21 +60,16 @@ export class RaffleBannerComponent  implements AfterViewInit{
   // Método para capturar la imagen del banner
 
 
-
-  getCornerClass1(index: number): string {
-    // Asigna clases para 4 imágenes; si hay más, puedes decidir cómo manejarlas.
-    switch (index) {
-      case 0: return 'top-left';
-      case 1: return 'top-right';
-      case 2: return 'bottom-left';
-      case 3: return 'bottom-right';
-      default: return ''; // O asigna una clase por defecto
+  loadDescription(): void {
+    if (this.raffle && this.raffle.producto && this.raffle.producto.descripcion) {
+      // Usa bypassSecurityTrustHtml para marcar el contenido como seguro
+      this.safeDescription = this.sanitizer.bypassSecurityTrustHtml(this.raffle.producto.descripcion);
+      console.log('Descripcion cagada', this.safeDescription)
     }
-
-
   }
 
-getCornerClass(index: number): string {
+
+getCornerClass0(index: number): string {
   switch (index) {
     case 0:
       return 'top-right';
@@ -142,18 +84,25 @@ getCornerClass(index: number): string {
   }
 }
 
-
-
-  downloadImage1(): void {
-    if (this.imageDataUrl) {
-      const link = document.createElement('a');
-      link.href = this.imageDataUrl;
-      link.download = 'raffle-banner.png'; // Nombre del archivo a descargar
-      link.click();
-    } else {
-      console.error('No hay imagen para descargar.');
-    }
+getCornerClass(index: number): string {
+  switch (index) {
+    case 0:
+      return 'image-pos-1';
+    case 1:
+      return 'image-pos-2';
+    case 2:
+      return 'image-pos-3';
+    case 3:
+      return 'image-pos-4';
+    case 4:
+      return 'image-pos-5';
+    default:
+      return ''; // Para índices adicionales se puede retornar una posición por defecto
   }
+}
+
+
+
 
   downloadImage(): void {
     if (!this.imageDataUrl) {
@@ -167,17 +116,6 @@ getCornerClass(index: number): string {
     link.click();
   }
 
-  downloadImage0(): void {
-    if (this.imageDataUrl) {
-      const link = document.createElement('a');
-      link.href = this.imageDataUrl;
-      link.download = 'raffle-banner.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      console.error('No hay imagen disponible para descargar');
-    }
-  }
+
 
 }

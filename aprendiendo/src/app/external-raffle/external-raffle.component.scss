@@ -65,24 +65,37 @@
   height: 50px;
   line-height: 60px; /* Para centrar verticalmente el texto */
   font-size: 1.2rem;
-  width: 100%;
+  //width: 100%;
   box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.3);
 
 }
 
 
-
+/*
 .scroll-container {
-  //max-height: 600px; /* Altura máxima del contenedor */
-  overflow-y: auto; /* Habilita el scroll vertical */
-  border: 1px solid #ddd; /* Opcional: bordes para visualización */
+  //max-height: 600px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px;
 
-  max-height: 80vh; /* 80% de la altura del viewport */
+  max-height: 80vh;
 
 
 }
+*/
+
+
+.scroll-container {
+  overflow-y: auto;
+  //border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  max-height: 100vh; /* o el valor que necesites */
+  padding-bottom: 70px; /* espacio adicional para el botón fijo */
+}
+
+
 
 .number-grid {
   display: grid;
@@ -99,39 +112,6 @@
 }
 
 
-/*
-.grid-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 20% ;
-  font-size: 16px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: bold;
-  background-color: #4CAF50 !important;
-  border-color: #4CAF50 !important;
-}*/
-
-/*
-.grid-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 80px;
-  height: 80px;
-  font-size: 18px;
-  border-radius: 15px;
-  text-align: center;
-  font-weight: bold;
-  border: none !important;
-
-  background: radial-gradient(circle, #0dcaf0 40%, #4f5557 100%);
-
-  box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.6);
-}*/
 
 
 .grid-button {
@@ -159,10 +139,15 @@
 
 
 .view-participants {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  z-index: 1000;
+  //background-color: rgba(255, 255, 255, 0.9);  /* Fondo semi-transparente para que no se pierda el contenido */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);     /* Sombra sutil en la parte superior */
 }
 
 .modal-content {
@@ -210,6 +195,32 @@
   display: flex;
   justify-content: center;
 }
+
+.winning-number {
+  //background-color: #fff;            /* Fondo claro */
+  //border: 2px solid #dc3545;         /* Borde rojo */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(220, 53, 69, 0.3);
+  /* La sombra exterior le da profundidad y la sombra interior refuerza el color del borde */
+  color: #dc3545;                    /* Texto en rojo para contraste */
+  padding: 8px 16px;                 /* Espaciado interno */
+  border-radius: 5px;                /* Bordes redondeados */
+  text-align: center;                /* Centra el texto */
+  margin: 20px auto;                 /* Centrado horizontal (requiere display:block o max-width) */
+  display: block;
+  max-width: 400px;                  /* Opcional: Limita el ancho máximo del bloque */
+}
+
+/* Ajustes responsivos para pantallas pequeñas */
+@media (max-width: 600px) {
+  .winning-number {
+    max-width: 90%;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+
+
 
 /* Responsividad: en pantallas muy pequeñas, apilar */
 @media (max-width: 400px) {
@@ -295,3 +306,9 @@
   font-size: 4rem;
 }
 
+@media (max-width: 480px) {
+  .view-participants {
+    padding: 8px 0;
+    font-size: 0.9rem; /* Ajuste del tamaño de fuente si es necesario */
+  }
+}

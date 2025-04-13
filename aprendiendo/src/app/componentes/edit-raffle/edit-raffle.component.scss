@@ -36,11 +36,7 @@ body{
     }
   }
 
-  .button-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-  }
+
 
 
 
@@ -139,9 +135,16 @@ body{
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Tres columnas iguales */
   gap: 0.5rem;
-  margin-bottom: 15px;
+ // margin-bottom: 15px;
 
 }
+
+/*
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}*/
 
 /* Grupo de controles adicionales (opciones de fuente, tamaño y color) */
 .options-group {
@@ -149,6 +152,7 @@ body{
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* Estilos para el editor modal */
@@ -163,16 +167,52 @@ body{
   margin-bottom: 1rem;
 }
 
+
+/* Contenedor que envuelve el editor y permite posicionar el botón de formato */
+.editor-container {
+  position: relative;
+}
+
+/* Área editable */
+.editable {
+  min-height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow: auto;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+/* Estilos para el botón de formato flotante */
+.format-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  padding: 0.3rem;        // Ajusta el padding para que el botón sea pequeño
+  min-width: auto;        // Evita que el botón se expanda más de lo necesario
+  border-radius: 50%;      // Forma circular
+  z-index: 10;
+  font-size: 1.2rem;       // Tamaño de ícono (ajustable)
+}
+
+/* Responsividad: reduce tamaño del botón en pantallas pequeñas */
+@media (max-width: 600px) {
+  .format-button {
+    font-size: 1rem;
+    padding: 0.2rem;
+  }
+}
+
+
 /* Responsividad para pantallas pequeñas */
 @media (max-width: 600px) {
   .button-group {
     grid-template-columns: repeat(3, 1fr); /* O puedes dejarlo en 3 columnas si lo prefieres */
 
   }
-  .options-group {
-    flex-direction: column;
 
-  }
   .editable {
     min-height: 120px !important;
   }
@@ -185,7 +225,7 @@ body{
 /* Sobrescribe el font-size de los botones en pantallas pequeñas */
 @media (max-width: 600px) {
   .button-group .p-button {
-    font-size: 12px !important; /* Ajusta el valor según tus necesidades */
+    font-size: 10px !important; /* Ajusta el valor según tus necesidades */
     //padding: 0.3rem 0.5rem !important; /* Opcional: reducir también el padding */
   }
 }

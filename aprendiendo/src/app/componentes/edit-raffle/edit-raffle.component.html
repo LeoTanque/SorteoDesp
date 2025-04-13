@@ -38,7 +38,7 @@
       <textarea id="productoDescripcion" pInputTextarea rows="4" [(ngModel)]="raffle.producto.descripcion" name="productoDescripcion" required></textarea>
     </!--div-->
 
-    <div class="field">
+    <!--div class="field">
       <label for="productoDescripcion">Descripción del Producto:</label>
       <div #editableDiv
            contenteditable="true"
@@ -57,7 +57,33 @@
           (onClick)="openFormatDialog()">
         </p-button>
       </div>
+    </div-->
+    <div class="field">
+      <label for="productoDescripcion">Descripción del Producto:</label>
+      <!-- Contenedor para el editor y el botón flotante -->
+      <div class="editor-container">
+        <div #editableDiv
+             contenteditable="true"
+             class="editable"
+             (input)="onDescriptionChange()"
+             (blur)="onDescriptionChange()">
+          <!-- Puedes cargar contenido inicial aquí si lo requieres -->
+        </div>
+        <!-- Botón flotante en la esquina inferior izquierda del editor -->
+        <p-button icon="pi pi-eye"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="primary"
+                  (onClick)="openFormatDialog()"
+                  class="format-button"
+                  title="Opciones de Formato">
+        </p-button>
+      </div>
+      <small class="text-red-500" *ngIf="descripcionInvalida">
+        La descripción no puede superar los 1500 caracteres.
+      </small>
     </div>
+
 
 
     <!--div class="field">
@@ -104,8 +130,9 @@
   </p-footer>
 </!--p-dialog-->
 
-<p-dialog header="Opciones de Formato" [(visible)]="displayFormatDialog" [modal]="true" [style]="{ width: '80%' }">
+<p-dialog header="Opciones de Formato" [(visible)]="displayFormatDialog" [modal]="true" [style]="{ width: '90%' }">
   <div class="format-toolbar">
+    <div #modalEditor class="editable" contenteditable="true"></div>
 
     <!-- Grupo 1: Botones de formato básico (Negrita, Cursiva, Subrayado) en 3 columnas -->
     <div class="button-group">
@@ -134,7 +161,7 @@
   </div>
 
   <!-- Editor modal -->
-  <div #modalEditor class="editable" contenteditable="true"></div>
+  <!--div #modalEditor class="editable" contenteditable="true"></!--div-->
 
   <p-footer>
     <button pButton type="button" label="Aplicar" icon="pi pi-check" (click)="closeFormatDialog(true)"></button>

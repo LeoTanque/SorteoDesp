@@ -1000,149 +1000,6 @@ executeRaffle(event: Event | null, raffle: Raffle): void {
 
 
 
-// DashboardComponent.ts (fragmento relevante)
-
-
-onCountdownFinished0(): void {
-  this.showCountdown = false;
-  // Selecciona el número ganador de forma aleatoria
-  const randomIndex = Math.floor(Math.random() * this.availableNumbers.length);
-  const winningNumber = this.availableNumbers[randomIndex];
-
-  // Busca el participante que reservó ese número (si existe)
-  const winningParticipantObj = this.participantes.find(p => p.reservedNumber === winningNumber);
-  let winningParticipant = winningParticipantObj
-      ? `${winningParticipantObj.name} ${winningParticipantObj.lastName}`
-      : "No ha sido reservado";
-
-  // Guarda en localStorage
-  localStorage.setItem('winningNumber', winningNumber.toString());
-  localStorage.setItem('winningParticipant', winningParticipant);
-  if (this.selectedRaffle && this.selectedRaffle.id !== undefined) {
-    localStorage.setItem('winningRaffleId', this.selectedRaffle.id.toString());
-  } else {
-    console.error('Selected raffle or its ID is undefined.');
-  }
-
-  // También actualiza las propiedades del componente
-  this.winningNumber = winningNumber;
-  this.winningParticipant = winningParticipant;
-  this.winningRaffleId = this.selectedRaffle.id ?? null;
-
-  // Crea una copia de la rifa actualizada (marcándola como inactiva)
-  const updatedRaffle = { ...this.selectedRaffle, active: false };
-
-  // Llama al servicio para actualizar la rifa en el backend
-  this.raffleService.updateRaffle(this.selectedRaffle.id!, updatedRaffle).subscribe({
-    next: (updated) => {
-      console.log('Rifa ejecutada:', updated);
-      Swal.fire({
-        title: 'Sorteo Ejecutado!',
-        text: 'El número ganador es: ' + winningNumber + (winningParticipantObj ? ('. Ganador: ' + winningParticipant) : '. Este número no fue reservado.'),
-        icon: 'success',
-        confirmButtonText: 'Aceptar'
-      }).then(() => {
-        // Actualiza el arreglo local y las listas de rifas activas/terminadas
-        const index = this.userRaffles.findIndex(r => r.id === updated.id);
-        if (index !== -1) {
-          this.userRaffles[index] = updated;
-        }
-        this.updateRafflesByStatus();
-      });
-    },
-    error: (error) => {
-      console.error('Error al ejecutar la rifa:', error);
-      Swal.fire({
-        title: 'Error',
-        text: 'No se pudo ejecutar la rifa. Por favor, inténtelo de nuevo.',
-        icon: 'error',
-        confirmButtonText: 'Aceptar'
-      });
-    }
-  });
-}
-
-onCountdownFinished1(): void {
-  this.showCountdown = false;
-
-  // Selecciona el número ganador de forma aleatoria
-  const randomIndex = Math.floor(Math.random() * this.availableNumbers.length);
-  const winningNumber = this.availableNumbers[randomIndex];
-
-  // Busca el participante que reservó ese número (si existe)
-  const winningParticipantObj = this.participantes.find(p => p.reservedNumber === winningNumber);
-  const winningParticipant = winningParticipantObj
-    ? `${winningParticipantObj.name} ${winningParticipantObj.lastName}`
-    : "No ha sido reservado";
-
-  // Crea el objeto de datos del ganador para esta rifa
-  const winningDataEntry = {
-    raffleId: this.selectedRaffle.id,
-    winningNumber: winningNumber,
-    winningParticipant: winningParticipant
-  };
-
-  // Obtener el arreglo existente de ganadores del localStorage
-  let winningData: any[] = [];
-  const storedData = localStorage.getItem('winningData');
-  if (storedData) {
-    try {
-      winningData = JSON.parse(storedData);
-      if (!Array.isArray(winningData)) {
-        winningData = [];
-      }
-    } catch (e) {
-      console.error('Error al parsear winningData:', e);
-      winningData = [];
-    }
-  }
-
-  // Agregar la nueva entrada
-  winningData.push(winningDataEntry);
-  localStorage.setItem('winningData', JSON.stringify(winningData));
-
-  // Actualizar las propiedades locales para la rifa ejecutada
-  this.winningNumber = winningNumber;
-  this.winningParticipant = winningParticipant;
-  this.winningRaffleId = this.selectedRaffle.id ?? null;
-
-  console.log('Número ganador:', this.winningNumber);
-  console.log('Ganador:', this.winningParticipant);
-  console.log('Entrada agregada en winningData:', winningDataEntry);
-
-  // Crea una copia de la rifa marcándola como inactiva
-  const updatedRaffle = { ...this.selectedRaffle, active: false };
-
-  // Llama al servicio para actualizar la rifa en el backend
-  this.raffleService.updateRaffle(this.selectedRaffle.id!, updatedRaffle).subscribe({
-    next: (updated) => {
-      console.log('Rifa ejecutada:', updated);
-      Swal.fire({
-        title: 'Sorteo Ejecutado!',
-        text: 'El número ganador es: ' + winningNumber + (winningParticipantObj ? ('. Ganador: ' + winningParticipant) : '. Este número no fue reservado.'),
-        icon: 'success',
-        confirmButtonText: 'Aceptar'
-      }).then(() => {
-        // Actualiza la rifa en el array local
-        const index = this.userRaffles.findIndex(r => r.id === updated.id);
-        if (index !== -1) {
-          this.userRaffles[index] = updated;
-        }
-        // Actualiza las listas de rifas activas y finalizadas
-        this.updateRafflesByStatus();
-      });
-    },
-    error: (error) => {
-      console.error('Error al ejecutar la rifa:', error);
-      Swal.fire({
-        title: 'Error',
-        text: 'No se pudo ejecutar la rifa. Por favor, inténtelo de nuevo.',
-        icon: 'error',
-        confirmButtonText: 'Aceptar'
-      });
-    }
-  });
-}
 
 onCountdownFinished(): void {
   // Oculta el contador
@@ -1258,7 +1115,7 @@ compartirRifa(raffle: any) {
 }
 
 
-  showDialog(): void {
+  showDialog0(): void {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const cantidadRifasPermitidas = currentUser.cantidadRifas || 1; // Si no hay un valor, se asume 1 como mínimo
 
@@ -1291,6 +1148,41 @@ compartirRifa(raffle: any) {
     }
 
     // Si pasa la validación, abrir el modal normalmente
+    this.displayDialog = true;
+  }
+  showDialog(): void {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    // Si no existe la propiedad 'cantidadRifas' se asume que el usuario solo puede tener 1 rifa
+    const cantidadRifasPermitidas = currentUser.cantidadRifas || 1;
+
+    // En lugar de solo contar las rifas activas, se cuenta el total de rifas (activas + terminadas)
+    const totalRifas = this.userRaffles ? this.userRaffles.length : 0;
+
+    // Si el usuario NO es VIP y ya tiene al menos una rifa (activa o terminada), se bloquea la apertura del modal
+    if (!this.isVip && totalRifas >= 1) {
+      console.error('Error: Los usuarios no VIP solo pueden crear una rifa.');
+      Swal.fire({
+        title: 'Límite alcanzado',
+        text: 'Los usuarios que no son VIP solo pueden tener una rifa activa o terminada.',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar',
+      });
+      return;
+    }
+
+    // Para usuarios VIP, se verifica si han alcanzado el límite (tomando en cuenta todas sus rifas)
+    if (this.isVip && totalRifas >= cantidadRifasPermitidas) {
+      console.error('Error: Has alcanzado el límite de rifas permitidas según tu código VIP.');
+      Swal.fire({
+        title: 'Límite alcanzado',
+        text: `Ya has alcanzado el número máximo de ${cantidadRifasPermitidas} rifas permitidas según tu código VIP.`,
+        icon: 'warning',
+        confirmButtonText: 'Aceptar',
+      });
+      return;
+    }
+
+    // Si pasa la validación, se abre el modal normalmente
     this.displayDialog = true;
   }
 
@@ -1650,6 +1542,9 @@ onSubmit(): void {
     return;
   }
 
+
+
+
   const requestBody = {
     nombre: this.newRaffle.nombre,
     cantidadParticipantes: this.newRaffle.cantidadParticipantes,
@@ -1714,6 +1609,7 @@ onSubmit(): void {
       },
     });
 }
+
 
 
 

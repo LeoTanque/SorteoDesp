@@ -409,7 +409,7 @@ loadWinningInfo0(): void {
 }
 
 
-loadWinningInfo(): void {
+loadWinningInfo1(): void {
   const storedData = localStorage.getItem('winningData');
   let data: any[] = [];
   if (storedData) {
@@ -438,9 +438,38 @@ loadWinningInfo(): void {
   }
 }
 
+loadWinningInfo(): void {
+  const storedData = localStorage.getItem('winningData');
+  let data: any[] = [];
+  if (storedData) {
+    try {
+      data = JSON.parse(storedData);
+      if (!Array.isArray(data)) {
+        data = [];
+      }
+    } catch (error) {
+      console.error('Error al parsear winningData:', error);
+      data = [];
+    }
+  }
+  this.winningData = data;
+  console.log('Información de ganadores cargada:', this.winningData);
+  // Si la rifa actual tiene una entrada ganadora, actualiza las propiedades locales
+  if (this.raffle && this.raffle.id) {
+    const currentWinner = this.getWinningEntry(this.raffle.id);
+    if (currentWinner) {
+      this.winningNumber = currentWinner.winningNumber;
+      this.winningParticipant = currentWinner.winningParticipant;
+    } else {
+      this.winningNumber = null;
+      this.winningParticipant = null;
+    }
+  }
+}
+
  // Método para obtener la entrada ganadora para una rifa
  getWinningEntry(raffleId: number): { raffleId: number, winningNumber: number, winningParticipant: string } | null {
-  if (!this.winningData || this.winningData.length === 0) {
+  if (!this.winningData || this.winningData.length === 1) {
     return null;
   }
   const entry = this.winningData.find(e => e.raffleId === raffleId);

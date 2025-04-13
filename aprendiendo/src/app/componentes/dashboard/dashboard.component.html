@@ -304,11 +304,9 @@ header="Crear Nueva Rifa"
 
 
 
-      <div class="col-12">
+      <!--div class="col-12">
         <label for="productDescription" class="block font-bold mb-3">Descripción del Producto</label>
-        <!--div-- #mainEditor contenteditable="true" class="editable">
-          {{ productData.descripcion }}
-        </!--div-->
+
 
         <div #mainEditor
         contenteditable="true"
@@ -327,7 +325,31 @@ header="Crear Nueva Rifa"
             (onClick)="openFormatDialog()">
           </p-button>
         </div>
+
+
+
+      </div-->
+      <div class="col-12">
+        <label for="productDescription" class="block font-bold mb-3">Descripción del Producto</label>
+        <!-- Contenedor relativo para el editor y el botón flotante -->
+        <div class="editor-container">
+          <!-- Div editable para la descripción -->
+          <div #mainEditor contenteditable="true"
+               class="editable"
+               (input)="updateDescription()"
+               (blur)="updateDescription()">
+          </div>
+          <!-- Botón flotante en la esquina inferior izquierda del editor -->
+
+
+
+          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (click)="openFormatDialog()" class="format-button" />
+        </div>
+        <small class="text-red-500" *ngIf="descripcionInvalida">
+          La descripción no puede superar los 1500 caracteres.
+        </small>
       </div>
+
 
 
       <div class="col-12">
@@ -411,7 +433,7 @@ header="Ingresar Código VIP"
 
 <div class="card flex justify-content-center">
 
-  <p-dialog header="Subir Imágenes de Producto" [modal]="true" [(visible)]="subida" [style]="{ width: '60%' }">
+  <p-dialog header="Subir Imágenes de Producto" [modal]="true" [(visible)]="subida" [style]="{ width: '95%' }">
 
     <div *ngFor="let slot of [0,1,2]; let i = index" class="upload-slot-grid mb-3">
 
@@ -451,7 +473,7 @@ header="Ingresar Código VIP"
           pButton
           label="Subir"
           icon="pi pi-upload"
-          class="p-button-secondary"
+          class="p-button-secondary sub"
           (click)="uploadProductImage(i)"
           [disabled]="uploading || !selectedFiles[i]"
         ></button>
@@ -509,9 +531,10 @@ header="Ingresar Código VIP"
 
 
 <!-- Modal de Formato -->
-<p-dialog header="Opciones de Formato" [(visible)]="displayFormatDialog" [modal]="true" [style]="{ width: '80%' }">
+<p-dialog header="Opciones de Formato" [(visible)]="displayFormatDialog" [modal]="true" [style]="{ width: '90%' }">
   <div class="format-toolbar">
 
+    <div #modalEditor class="editable" contenteditable="true"></div>
     <!-- Grupo 1: Botones de formato básico (Negrita, Cursiva, Subrayado) en 3 columnas -->
     <div class="button-group">
           <button pButton icon="pi pi-bold" label="Negrita" (click)="applyFormat('bold')"></button>
@@ -539,7 +562,7 @@ header="Ingresar Código VIP"
   </div>
 
   <!-- Editor modal -->
-  <div #modalEditor class="editable" contenteditable="true"></div>
+
 
   <p-footer>
     <button pButton type="button" label="Aplicar" icon="pi pi-check" (click)="closeFormatDialog(true)"></button>

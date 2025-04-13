@@ -20,6 +20,14 @@
         </ng-template>
       </p-carousel>
     </div>
+
+    <div *ngIf="!showCountdown && getWinningEntry(raffle.id) as winnerEntry" class="winning-number" >
+      <span>Número ganador: {{ winnerEntry.winningNumber }}</span>
+      <p>Ganador: {{ winnerEntry.winningParticipant }}</p>
+    </div>
+
+
+
     <div class="full-width-button">
       <p-button
         label="Ver descripción del producto"
@@ -41,10 +49,6 @@
     </div>
   </div>
 
-  <!-- Botón para ver la descripción del producto -->
-
-
-  <!-- Grid de números -->
 
 
   <p-dialog
@@ -68,11 +72,13 @@
   <h2>Número ganador: {{ winningNumber }}</h2>
 </!--div-->
 
-<div *ngIf="!showCountdown && winningNumber !== null" class="winning-number">
-  <h2>Número ganador: {{ winningNumber }}</h2>
-  <p>Ganador: {{ winningParticipant || 'No reservado' }}</p>
-</div>
 
+
+
+<!--div-- *ngIf="!showCountdown && getWinningEntry(raffle.id) as winnerEntry" class="winning-number">
+  <h2>Número ganador: {{ winnerEntry.winningNumber }}</h2>
+  <p>Ganador: {{ winnerEntry.winningParticipant }}</p>
+</!--div-->
 
 
 <!--div *ngIf="getWinningEntry(raffle.id) as winnerEntry" class="winning-number">

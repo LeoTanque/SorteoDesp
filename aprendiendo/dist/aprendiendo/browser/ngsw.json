@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1744356934673,
+  "timestamp": 1744557354896,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -15,7 +15,7 @@
         "/favicon.ico",
         "/index.html",
         "/light.css",
-        "/main-Y465E3TU.js",
+        "/main-KNR3HPP3.js",
         "/manifest.webmanifest",
         "/polyfills-6EAL64PA.js",
         "/styles-NBEYUZBU.css"
@@ -78,9 +78,9 @@
     "/assets/logoSorteo.jpg": "0925c301ffe8f13d5228936466d3d45a03d0cd88",
     "/dark.css": "70cf028d297c6cb37dab09e048c58a0a2c722c48",
     "/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
-    "/index.html": "c7d67782077e5342dde2728568671251aa2f373c",
+    "/index.html": "d34744d1319350a92123e3ec392cdb349f18197b",
     "/light.css": "db65c64cc44ae4dfb8d7d3f47bc7ec29be266273",
-    "/main-Y465E3TU.js": "94ff7dd32b90d99508ec3b41d0aecccb58f49d54",
+    "/main-KNR3HPP3.js": "195c0c295c22af9a565c5a225b6afc46434b4a2f",
     "/manifest.webmanifest": "6dda8255f7ddd0a1918da1f9565401e813637edb",
     "/media/color-3LUHUBGQ.png": "ff4c4bcb2207891b292f544edb4da9d2df5d45cf",
     "/media/hue-RMMBQOAC.png": "f81ae627637a684614aa726e206c73ce099a01fd",
