@@ -681,3 +681,30 @@ p{
   font-size: 8px;
 }
 }
+
+
+.active-raffles-container {
+  //background-color: #fff;          /* Fondo blanco o el que prefieras */
+  border-radius: 10px;             /* Bordes redondeados */
+  padding: 1rem;                   /* Espaciado interno */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);  /* Sombra sutil */
+  margin-bottom: 1rem;             /* Separación inferior */
+  text-align: center;              /* Centrar el contenido */
+}
+
+.active-raffles-container h3 {
+  margin: 0;                       /* Quita márgenes extra si es necesario */
+  color: #5b5757;                     /* Color del texto */
+  font-size: 1.5rem;               /* Ajusta según tus preferencias */
+}
+
+/* Puedes ajustar los estilos responsivos si lo consideras necesario */
+@media (max-width: 600px) {
+  .active-raffles-container {
+    padding: 0.75rem;
+  }
+  .active-raffles-container h3 {
+    font-size: 1.3rem;
+  }
+}
+

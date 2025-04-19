@@ -239,7 +239,12 @@
 
   .image-container{
     height: 20vh;
+    width: 100%
 
+  }
+
+  .image-container img {
+    width: 100%;
   }
 }
 
@@ -261,7 +266,11 @@
 
   .image-container{
     height: 20vh;
+    width: 100%;
+  }
 
+  .image-container img{
+    width: 100%;
   }
 }
 
@@ -273,7 +282,12 @@
 
   .image-container{
     height: 20vh;
+    width: 100%;
 
+  }
+
+  .image-container img{
+    width: 100%;
   }
 }
 
@@ -306,9 +320,60 @@
   font-size: 4rem;
 }
 
+.price-info {
+  text-align: right;
+  margin-top: 10px;        /* Espacio superior para separar del carrusel */
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;             /* Ajusta el color según tu diseño */
+}
+
+.price-info span {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #445367;
+  color: #fff;          /* O el color que prefieras para el texto del precio */
+}
+
+
+
 @media (max-width: 480px) {
   .view-participants {
     padding: 8px 0;
     font-size: 0.9rem; /* Ajuste del tamaño de fuente si es necesario */
   }
+
+  .image-container{
+    height: 20vh;
+    width: 100%;
+
+  }
+
+  .image-container img{
+    width: 100%;
+  }
 }
+
+.price-and-share {
+  display: flex;
+  align-items: center; /* Alinea verticalmente el precio y el botón */
+  justify-content: space-between; /* Espacio entre los elementos */
+  margin-top: 1rem; /* Espaciado superior */
+}
+
+
+
+:host ::ng-deep .share-whatsapp-button {
+  width: 60px !important;
+  height: 60px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:host ::ng-deep .share-whatsapp-button .p-button-icon {
+  font-size: 1.8rem !important;
+}
+

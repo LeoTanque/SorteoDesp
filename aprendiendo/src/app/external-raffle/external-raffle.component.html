@@ -19,6 +19,32 @@
           </div>
         </ng-template>
       </p-carousel>
+
+
+
+      <!--div-- class="price-info">
+        <span>{{ raffle.precio | currency:'USD':'symbol':'1.0-0' }}</span>
+      </!--div-->
+
+      <div class="price-and-share">
+
+        <p-button
+          icon="pi pi-whatsapp"
+          [rounded]="true"
+          [text]="true"
+          severity="success"
+          styleClass="share-whatsapp-button"
+          (click)="shareRaffleViaWhatsApp()"
+        ></p-button>
+
+
+
+        <div class="price-info">
+          <span>{{ raffle.precio | currency:'USD':'symbol':'1.0-0' }}</span>
+        </div>
+
+      </div>
+
     </div>
 
     <div *ngIf="!showCountdown && getWinningEntry(raffle.id) as winnerEntry" class="winning-number" >
@@ -26,6 +52,9 @@
       <p>Ganador: {{ winnerEntry.winningParticipant }}</p>
     </div>
 
+    <!--button-- (click)="shareRaffleViaWhatsApp()" class="p-button p-component">
+      <i class="pi pi-whatsapp"></i> Compartir
+    </!--button-->
 
 
     <div class="full-width-button">

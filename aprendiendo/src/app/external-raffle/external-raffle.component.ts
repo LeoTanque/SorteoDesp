@@ -86,9 +86,7 @@ export class ExternalRaffleComponent implements OnInit{
           this.raffleId = Number(idParam);
           this.cargarRifa(this.raffleId).then(() => {
             this.initializeForm(); // Solo después de cargar la rifa, se inicializa el formulario
-            if (this.raffle && this.raffle.cantidadParticipantes) {
-              this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
-            }
+
             this.loadParticipantes(this.raffleId);
            // this.loadParticipantesPorRifa(this.raffleId)
           });
@@ -190,7 +188,7 @@ isInvalid(field: string): boolean {
 
 
 
-  async cargarRifa(id: number) {
+  async cargarRifa0(id: number) {
     try {
       const response = await this.rifaService.obtenerRifaPorId(id).toPromise();
       this.raffle = response;
@@ -204,6 +202,25 @@ isInvalid(field: string): boolean {
       console.error('❌ Error al cargar la rifa:', error);
     }
   }
+
+  async cargarRifa(id: number) {
+    try {
+      const response = await this.rifaService.obtenerRifaPorId(id).toPromise();
+      this.raffle = response;
+      console.log('Datos de la rifa cargada:', this.raffle);
+      this.raffleCode = this.raffle?.code || '';
+      // Si la propiedad cantidadParticipantes no es un número, lo convertimos:
+      const totalParticipantes = this.raffle && this.raffle.cantidadParticipantes
+        ? parseInt(this.raffle.cantidadParticipantes, 10)
+        : 10;
+      // Actualizamos availableNumbers de 1 hasta totalParticipantes:
+      this.availableNumbers = Array.from({ length: totalParticipantes }, (_, i) => i + 1);
+      console.log('Números disponibles:', this.availableNumbers);
+    } catch (error) {
+      console.error('❌ Error al cargar la rifa:', error);
+    }
+  }
+
 
 
   loadRaffle(): void {
@@ -379,64 +396,7 @@ onCountdownFinishedExternal(): void {
 
 
 
-loadWinningInfo0(): void {
-  const storedData = localStorage.getItem('winningData');
-  let data: any[] = [];
-  if (storedData) {
-    try {
-      data = JSON.parse(storedData);
-      if (!Array.isArray(data)) {
-        data = [];
-      }
-    } catch (error) {
-      console.error('Error al parsear winningData:', error);
-      data = [];
-    }
-  }
-  this.winningData = data;
-  console.log('Información de ganadores cargada:', this.winningData);
-  // Si la rifa actual tiene una entrada, actualiza las propiedades locales
-  if (this.raffle && this.raffle.id) {
-    const currentWinner = this.getWinningEntry(this.raffle.id);
-    if (currentWinner) {
-      this.winningNumber = currentWinner.winningNumber;
-      this.winningParticipant = currentWinner.winningParticipant;
-    } else {
-      this.winningNumber = null;
-      this.winningParticipant = null;
-    }
-  }
-}
 
-
-loadWinningInfo1(): void {
-  const storedData = localStorage.getItem('winningData');
-  let data: any[] = [];
-  if (storedData) {
-    try {
-      data = JSON.parse(storedData);
-      if (!Array.isArray(data)) {
-        data = [];
-      }
-    } catch (error) {
-      console.error('Error al parsear winningData:', error);
-      data = [];
-    }
-  }
-  this.winningData = data;
-  console.log('Información de ganadores cargada:', this.winningData);
-  // Si la rifa actual tiene una entrada, asigna sus datos
-  if (this.raffle && this.raffle.id) {
-    const entry = this.getWinningEntry(this.raffle.id);
-    if (entry) {
-      this.winningNumber = entry.winningNumber;
-      this.winningParticipant = entry.winningParticipant;
-    } else {
-      this.winningNumber = null;
-      this.winningParticipant = null;
-    }
-  }
-}
 
 loadWinningInfo(): void {
   const storedData = localStorage.getItem('winningData');
@@ -477,6 +437,52 @@ loadWinningInfo(): void {
 }
 
 
+shareRaffleViaWhatsApp0(): void {
+  if (!this.raffleId) {
+    console.error('No se puede compartir la rifa porque no se encontró el ID.');
+    return;
+  }
 
+  // Construir la URL de la rifa
+  const raffleUrl = `${window.location.origin}/external-raffle/${this.raffleId}`;
+
+  // Mensaje personalizado para compartir
+  const message = `¡Participa en esta rifa increíble! 🎟️\n\n` +
+                  `Código de la rifa: ${this.raffleCode}\n` +
+                  `Enlace para participar: ${raffleUrl}`;
+
+  // Codificar el mensaje para incluirlo en la URL de WhatsApp
+  const encodedMessage = encodeURIComponent(message);
+
+  // Construir el enlace de WhatsApp
+  const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+
+  // Abrir el enlace en una nueva ventana o pestaña
+  window.open(whatsappUrl, '_blank');
+}
+
+shareRaffleViaWhatsApp(): void {
+  if (!this.raffleId) {
+    console.error('No se puede compartir la rifa porque no se encontró el ID.');
+    return;
+  }
+
+  // Construir la URL de la rifa
+  const raffleUrl = `${window.location.origin}/external-raffle/${this.raffleId}`;
+
+  // Mensaje personalizado para compartir
+  const message = `¡Participa en esta rifa increíble! 🎟️\n\n` +
+                  `Código de la rifa: ${this.raffleCode}\n` +
+                  `Enlace para participar: ${raffleUrl}`;
+
+  // Codificar el mensaje para incluirlo en la URL de WhatsApp
+  const encodedMessage = encodeURIComponent(message);
+
+  // Construir el enlace de WhatsApp para abrir la app directamente
+  const whatsappUrl = `whatsapp://send?text=${encodedMessage}`;
+
+  // Abrir el enlace
+  window.location.href = whatsappUrl;
+}
 
 }
