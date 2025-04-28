@@ -8,7 +8,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); // Sombra suave
   border-radius: 8px; // Opcional: bordes redondeados
   padding: 0.5rem;    // Espaciado interno
-  margin-bottom: 1rem; // Separación respecto a otros elementos
+  //margin-bottom: 1rem; // Separación respecto a otros elementos
 }
 
 /* También puedes estilizar el toolbar interno */
@@ -61,6 +61,13 @@
   margin-right: auto;
 }
 
+.toolbar-logo1 {
+  max-height: 60px; /* Ajusta el tamaño según lo necesites */
+  width: auto;
+  //margin-bottom: 0.1rem;
+  margin-right: auto;
+}
+
 /* Responsividad */
 @media only screen and (max-width: 768px) {
   .p-toolbar {
@@ -72,11 +79,83 @@
   .p-toolbar-group-start,
   .p-toolbar-group-center {
     width: 100%;
+    //justify-content: start;
     justify-content: center;
   }
 
   .toolbar-logo {
-    margin-bottom: 10px; /* Espacio entre el logo y el texto */
+    //margin-bottom: 10px; /* Espacio entre el logo y el texto */
+    max-height: 50px;
+  }
+  .toolbar-logo1 {
+    //margin-bottom: 10px; /* Espacio entre el logo y el texto */
+    max-height: 50px;
+  }
+
+}
+
+.external-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.external-text {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.external-logo {
+  max-height: 40px;  /* un poquito más pequeño que el normal */
+  width: auto;
+}
+
+@media only screen and (max-width: 768px) {
+  /* ajustar también en móvil si hace falta */
+  .external-logo {
     max-height: 50px;
   }
 }
+
+/* 1) Asegura que el grupo-start sea flex y alinee todo a la izquierda */
+.p-toolbar-group-start
+.external-logo {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+
+/* 2) El enlace que envuelve al logo también debe ser un flex sin margen */
+.p-toolbar-group-start a {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 3) Si tienes un wrapper alrededor (external-header), hazlo flex-start */
+.external-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* antes tenías center */
+  text-align: left;        /* para que el span también quede a la izquierda */
+  padding-left: 0;         /* elimina padding adicional */
+  margin-left: 0;          /* elimina margen adicional */
+}
+
+/* 4) Asegúrate de que la imagen no tenga márgenes laterales */
+.toolbar-logo,
+.external-logo {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block;
+}
+
+
+

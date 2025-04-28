@@ -189,7 +189,7 @@
 
         </div>
 
-          <div class="flex gap-2 mt-2">
+          <!--div-- class="flex gap-2 mt-2">
             <button pButton type="button" label="Compartir" icon="pi pi-share"
                     class="p-button-info p-button-sm" (click)="shareOnWhatsApp()"></button>
 
@@ -199,7 +199,7 @@
                     class="p-button-danger p-button-sm" (click)="deleteRaffle(raffle)"></button>
 
 
-          </div>
+          </!--div-->
 
 
         </div>
@@ -360,7 +360,7 @@ header="Crear Nueva Rifa"
 
 
 
-          <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" (click)="openFormatDialog()" class="format-button" />
+          <p-button icon="pi pi-pen-to-square" [rounded]="true" [text]="true" severity="info" (click)="openFormatDialog()" class="format-button" />
         </div>
         <small class="text-red-500" *ngIf="descripcionInvalida">
           La descripción no puede superar los 1500 caracteres.

@@ -17,12 +17,15 @@ import Swal from 'sweetalert2';
 import { CountdownComponent } from "../componentes/countdown/countdown.component";
 import { RaffleExecutionService } from '../services/raffle-execution.service';
 import { Subscription } from 'rxjs';
+import { ConfettiComponent } from "../componentes/confetti/confetti.component";
+
+
 
 @Component({
   selector: 'app-external-raffle',
   standalone: true,
   imports: [CommonModule, RouterModule, CarouselModule, ButtonModule, TagModule, DialogModule, TableModule, InputTextModule,
-    FormsModule, ReactiveFormsModule, InputMaskModule, CountdownComponent],
+    FormsModule, ReactiveFormsModule, InputMaskModule, CountdownComponent, ConfettiComponent],
   templateUrl: './external-raffle.component.html',
   styleUrl: './external-raffle.component.scss'
 })
@@ -53,13 +56,14 @@ export class ExternalRaffleComponent implements OnInit{
 
 
   winningRaffleId: number | null = null;
-
+  showConfetti = false;
 
   private subscription!: Subscription;
   constructor(
     private route: ActivatedRoute,
     private rifaService: RaffleService,
-    private fb: FormBuilder, private router:Router,   private raffleExecutionService: RaffleExecutionService,
+    private fb: FormBuilder, private router:Router,
+    private raffleExecutionService: RaffleExecutionService,
     private participanteService: ParticipanteService) {
       this.reservationForm = this.fb.group({
         name: ['', Validators.required],
@@ -112,8 +116,17 @@ export class ExternalRaffleComponent implements OnInit{
       }
     });
 
-      // Escuchar cambios en localStorage para el contador
-      window.addEventListener('storage', this.storageListener);
+
+  window.addEventListener('storage', this.onStorageEvent.bind(this));
+
+
+  window.addEventListener('storage', (event: StorageEvent) => {
+    if (event.key === 'winningData') {
+      console.log('storage event → winningData:', event.newValue);
+      this.loadWinningInfo();
+    }
+  });
+
 
       this.loadWinningInfo();
 
@@ -152,12 +165,13 @@ export class ExternalRaffleComponent implements OnInit{
     window.removeEventListener('storage', this.storageListener);
   }
 
+
+
   private onStorageEvent(event: StorageEvent): void {
     if (event.key === 'countdown') {
       const newValue = event.newValue;
       if (newValue !== null) {
-        const count = parseInt(newValue, 10);
-        this.countdownValue = count;
+        this.countdownValue = parseInt(newValue, 10);
         this.showCountdown = true;
       } else {
         this.showCountdown = false;
@@ -165,7 +179,6 @@ export class ExternalRaffleComponent implements OnInit{
       console.log('Contador actualizado desde localStorage:', event.newValue);
     }
   }
-
 
 
 
@@ -186,28 +199,12 @@ isInvalid(field: string): boolean {
 
 
 
-
-
-  async cargarRifa0(id: number) {
-    try {
-      const response = await this.rifaService.obtenerRifaPorId(id).toPromise();
-      this.raffle = response;
-      console.log('Datos de la rifa cargada:', this.raffle);
-      this.raffleCode = this.raffle?.code ?? '';
-      console.log('🎟️ Código de la rifa cargado:', this.raffleCode);
-      if (this.raffle && this.raffle.cantidadParticipantes) {
-        this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
-      }
-    } catch (error) {
-      console.error('❌ Error al cargar la rifa:', error);
-    }
-  }
-
   async cargarRifa(id: number) {
     try {
       const response = await this.rifaService.obtenerRifaPorId(id).toPromise();
       this.raffle = response;
       console.log('Datos de la rifa cargada:', this.raffle);
+      console.log('Teléfono del admin:', this.raffle.usuario.telefono);
       this.raffleCode = this.raffle?.code || '';
       // Si la propiedad cantidadParticipantes no es un número, lo convertimos:
       const totalParticipantes = this.raffle && this.raffle.cantidadParticipantes
@@ -362,7 +359,7 @@ isInvalid(field: string): boolean {
 
 
 
-onCountdownFinishedExternal(): void {
+onCountdownFinishedExternal0(): void {
   // Recupera la información ganadora del localStorage
   const storedData = localStorage.getItem('winningData');
   if (storedData) {
@@ -382,6 +379,9 @@ onCountdownFinishedExternal(): void {
           icon: 'success',
           confirmButtonText: 'Aceptar'
         });
+        this.showConfetti = true;
+        // después de 2s, apaga para poder reutilizar
+        setTimeout(() => this.showConfetti = false, 2000);
       } else {
         console.log('No hay información de ganador para esta rifa.');
       }
@@ -393,6 +393,63 @@ onCountdownFinishedExternal(): void {
   }
 }
 
+onCountdownFinishedExternal(): void {
+  // Recupera la información ganadora del localStorage
+  const storedData = localStorage.getItem('winningData');
+  if (!storedData) {
+    console.log('No se encontró información de ganadores en localStorage.');
+    return;
+  }
+
+  let winningDataArray: any[];
+  try {
+    winningDataArray = JSON.parse(storedData);
+  } catch {
+    console.error('Error al parsear winningData:', storedData);
+    return;
+  }
+
+  this.winningData = winningDataArray;
+  const currentWinner = this.getWinningEntry(this.raffle?.id);
+  if (!currentWinner) {
+    console.log('No hay información de ganador para esta rifa.');
+    return;
+  }
+
+  const { winningNumber, winningParticipant } = currentWinner;
+  this.winningNumber = winningNumber;
+  this.winningParticipant = winningParticipant;
+  console.log('Número ganador en ExternalRaffleComponent:', winningNumber);
+  console.log('Ganador:', winningParticipant);
+
+  // Comprueba si el ganador está reservado
+  const isReserved = this.participantes.some(
+    p => p.raffleId === this.raffle?.id && p.reservedNumber === winningNumber
+  );
+
+  if (isReserved) {
+    // —————— GANADOR VÁLIDO ——————
+    // Muestra Confetti
+    this.showConfetti = true;
+    // Desactiva confetti tras 3 segundos (puedes ajustar)
+    setTimeout(() => this.showConfetti = false, 3000);
+
+    Swal.fire({
+      title: '¡Sorteo Ejecutado!',
+      text: `El número ganador es ${winningNumber}. Ganador: ${winningParticipant}.`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
+  } else {
+    // —————— SIN PARTICIPANTE PARA ESE NÚMERO ——————
+    Swal.fire({
+      title: 'Sorteo sin ganador',
+      text: `El número ganador es ${winningNumber}, pero no ha sido reservado por ningún participante. La rifa sigue activa.`,
+      icon: 'info',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+}
 
 
 
@@ -427,39 +484,13 @@ loadWinningInfo(): void {
   }
 }
 
- // Método para obtener la entrada ganadora para una rifa
- getWinningEntry(raffleId: number): { raffleId: number, winningNumber: number, winningParticipant: string } | null {
-  if (!this.winningData || this.winningData.length === 1) {
-    return null;
-  }
-  const entry = this.winningData.find(e => e.raffleId === raffleId);
-  return entry ? entry : null;
+
+
+getWinningEntry(raffleId: number) {
+  if (!this.winningData) return null;
+  return this.winningData.find(e => e.raffleId === raffleId) || null;
 }
 
-
-shareRaffleViaWhatsApp0(): void {
-  if (!this.raffleId) {
-    console.error('No se puede compartir la rifa porque no se encontró el ID.');
-    return;
-  }
-
-  // Construir la URL de la rifa
-  const raffleUrl = `${window.location.origin}/external-raffle/${this.raffleId}`;
-
-  // Mensaje personalizado para compartir
-  const message = `¡Participa en esta rifa increíble! 🎟️\n\n` +
-                  `Código de la rifa: ${this.raffleCode}\n` +
-                  `Enlace para participar: ${raffleUrl}`;
-
-  // Codificar el mensaje para incluirlo en la URL de WhatsApp
-  const encodedMessage = encodeURIComponent(message);
-
-  // Construir el enlace de WhatsApp
-  const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-
-  // Abrir el enlace en una nueva ventana o pestaña
-  window.open(whatsappUrl, '_blank');
-}
 
 shareRaffleViaWhatsApp(): void {
   if (!this.raffleId) {
@@ -472,7 +503,7 @@ shareRaffleViaWhatsApp(): void {
 
   // Mensaje personalizado para compartir
   const message = `¡Participa en esta rifa increíble! 🎟️\n\n` +
-                  `Código de la rifa: ${this.raffleCode}\n` +
+                  //`Código de la rifa: ${this.raffleCode}\n` +
                   `Enlace para participar: ${raffleUrl}`;
 
   // Codificar el mensaje para incluirlo en la URL de WhatsApp
@@ -484,5 +515,16 @@ shareRaffleViaWhatsApp(): void {
   // Abrir el enlace
   window.location.href = whatsappUrl;
 }
+
+
+whatsappAppLink(): string {
+  const phone = this.raffle?.usuario?.telefono ?? '';
+  const clean = phone.replace(/\D+/g, '');
+  const adminName = this.raffle?.usuario?.name ?? 'Administrador';
+  const text = encodeURIComponent(`Hola ${adminName}, quisiera participar en su sorteo.`);
+  return `whatsapp://send?phone=${clean}&text=${text}`;
+}
+
+
 
 }

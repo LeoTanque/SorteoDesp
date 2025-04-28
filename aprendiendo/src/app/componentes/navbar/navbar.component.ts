@@ -21,6 +21,9 @@ export class NavbarComponent implements OnInit {
   userName: string = '';
   daysLeft: number = 30;
   title = 'Supersorteo';
+
+
+
   //checked: boolean = true;
   //selectedTheme: string = 'dark';
   checked: boolean = false;

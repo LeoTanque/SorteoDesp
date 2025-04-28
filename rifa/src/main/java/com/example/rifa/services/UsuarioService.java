@@ -94,6 +94,7 @@ public class UsuarioService {
             usuario.setEmail(usuarioActualizado.getEmail());
             usuario.setPassword(usuarioActualizado.getPassword());
             usuario.setConfirmarPassword(usuarioActualizado.getConfirmarPassword());
+            usuario.setTelefono(usuarioActualizado.getTelefono());
             usuario.setEsVip(usuarioActualizado.isEsVip());
             return usuarioRepository.save(usuario);
         }).orElse(null);

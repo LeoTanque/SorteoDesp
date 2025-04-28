@@ -296,6 +296,9 @@ input {
   //background-color: #f2f2f2;
 }
 
+
+
+
 .auth-card a {
   font-size: 14px;
   color: #ff4b2b;
@@ -327,3 +330,9 @@ input {
   }
 }
 
+:host ::ng-deep .p-inputtext {
+  margin: 0;
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}

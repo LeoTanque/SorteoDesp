@@ -19,6 +19,7 @@
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "@angular/service-worker": "^17.3.12",
+    "canvas-confetti": "^1.9.3",
     "html2canvas": "^1.4.1",
     "nodemailer": "^6.9.16",
     "primeflex": "^3.3.1",

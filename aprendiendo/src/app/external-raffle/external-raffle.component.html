@@ -1,4 +1,15 @@
 <div *ngIf="raffle">
+  <!--div-- class="external-header">
+
+    <span class="external-text">Este sorteo se hizo con:</span>
+         <a href="http://localhost:4200/" target="_blank" rel="noopener">
+          <img
+            src="assets/logoSorteo.jpg"
+            alt="Logo Sorteo"
+            class="toolbar-logo external-logo"
+          />
+        </a>
+  </!--div-->
   <div class="scroll-container">
     <div class="card">
       <h2 class="product-name" style="text-align: center; margin-bottom: 1rem;">
@@ -115,6 +126,8 @@
   <p>Ganador: {{ winnerEntry.winningParticipant }}</p>
 </div-->
 
+<!--app-confetti [fire]="showConfetti"></!--app-confetti-->
+<app-confetti [active]="showConfetti"></app-confetti>
 
 </div>
 
@@ -235,6 +248,15 @@
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
     [maximizable]="true">
         <p>
-            Para poder reservar necesita el código único referente a la rifa, y para obtener este código necesita ponerse en contacto con el administrador de la rifa.
+          Para poder reservar necesita el código único referente a la rifa,
+          y para obtener este código, póngase en contacto con el administrador al teléfono:
+          <a
+          [href]="whatsappAppLink()"
+          style="font-weight: bold; text-decoration: none; color: inherit;"
+        >
+          {{ raffle?.usuario?.telefono }}
+        </a>.
         </p>
 </p-dialog>
+
+

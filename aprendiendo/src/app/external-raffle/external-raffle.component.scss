@@ -32,7 +32,7 @@
 }
 
 .card {
-  padding: 1rem;
+  padding: 0.5rem;
   //min-height: 50vh; /* Mínimo 50% de la altura del viewport */
   /* Otros estilos existentes */
 }
@@ -40,7 +40,7 @@
 :host ::ng-deep .custom-button {
   background-color: #0dcaf0 !important;
   border-color: #0dcaf0 !important;
-  border-radius: 25px !important;
+  border-radius: 20px !important;
   color: #fff !important;
   font-weight: bold !important;
   background: radial-gradient(circle, #0dcaf0 40%, #4f5557 100%) !important;
@@ -48,7 +48,7 @@
   height: 60px;
   line-height: 60px; /* Para centrar verticalmente el texto */
   font-size: 1rem;
-  width: 96%;
+  width: 100%;
   box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.3);
 
 }
@@ -70,6 +70,42 @@
 
 }
 
+
+
+.external-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.external-text {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.external-logo {
+  max-height: 40px;  /* un poquito más pequeño que el normal */
+  width: auto;
+}
+
+@media only screen and (max-width: 768px) {
+  /* ajustar también en móvil si hace falta */
+  .external-logo {
+    max-height: 50px;
+  }
+}
+
+/* 1) Asegura que el grupo-start sea flex y alinee todo a la izquierda */
+.p-toolbar-group-start
+.external-logo {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
 
 /*
 .scroll-container {
@@ -217,6 +253,8 @@
     padding: 6px 12px;
     font-size: 0.9rem;
   }
+
+
 }
 
 
@@ -237,15 +275,7 @@
     margin-top: 0.5rem;
   }
 
-  .image-container{
-    height: 20vh;
-    width: 100%
 
-  }
-
-  .image-container img {
-    width: 100%;
-  }
 }
 
 
@@ -258,7 +288,7 @@
 
 }
 
-/* En pantallas medianas (de 400px a 599px), usar 3 columnas */
+/*
 @media (max-width: 599px) {
   .number-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -274,22 +304,59 @@
   }
 }
 
-/* En pantallas muy pequeñas (menos de 400px), usar 2 columnas */
+
 @media (max-width: 359px) {
   .number-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .image-container{
-    height: 20vh;
+    height: 15vh;
     width: 100%;
-
   }
 
   .image-container img{
     width: 100%;
   }
+
+}*/
+
+/* En pantallas medianas (de 400px a 599px), usar 3 columnas */
+/* Para pantallas pequeñas (menos de 600px) */
+@media (max-width: 599px) {
+  .image-container {
+    width: 100%; /* Mantener ancho completo */
+    height: 35vh; /* Ajustar altura a un tamaño mayor */
+    margin: 0 auto; /* Centrar el contenedor horizontalmente */
+  }
+
+  .image-container img {
+    width: 100%; /* Mantener ancho completo de la imagen */
+    height: 100%; /* La imagen se ajustará a la altura del contenedor */
+    object-fit: cover; /* Evitar distorsión mientras mantiene proporciones */
+  }
+
+  .p-carousel-container{
+    display: grid;
+  }
 }
+
+/* En pantallas muy pequeñas (menos de 400px) */
+@media (max-width: 399px) {
+  .image-container {
+    width: 100%; /* Mantener ancho completo */
+    height: 40vh; /* Aumentar aún más la altura */
+    margin: 0 auto; /* Centrar el contenedor horizontalmente */
+  }
+
+  .image-container img {
+    width: 100%; /* Mantener ancho completo de la imagen */
+    height: 100%; /* Ajustar altura de la imagen al contenedor */
+    object-fit: cover; /* Evitar distorsión y garantizar un buen aspecto */
+  }
+}
+
+
 
 :host ::ng-deep button.grid-button.reserved {
   background: none !important;
@@ -377,3 +444,41 @@
   font-size: 1.8rem !important;
 }
 
+
+/* 1) Apunta al p-carousel y a su container interno */
+:host ::ng-deep .p-carousel .p-carousel-container {
+  display: grid !important;
+  grid-template-columns: 2.5% 95% 2.5% !important;
+  align-items: center;
+}
+
+/* 2) Cada slide (= .p-carousel-item) se coloca en la columna central */
+:host ::ng-deep .p-carousel .p-carousel-item {
+  grid-column: 2 / 3 !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* 3) Opcional: centra los botones de navegación y asegúrate de que no rompan la rejilla */
+:host ::ng-deep .p-carousel .p-carousel-prev-nav,
+:host ::ng-deep .p-carousel .p-carousel-next-nav {
+  grid-column: 1 / 4 !important;  /* que cubran las tres columnas si quieres */
+  justify-self: center !important;
+}
+
+/* 4) Que la imagen ocupe siempre todo el ancho de su contenedor */
+:host ::ng-deep .p-carousel .image-container {
+  width: 100% !important;
+  padding: 0 !important;
+}
+:host ::ng-deep .p-carousel .image-container img {
+  width: 100% !important;
+  //height: auto !important;
+  //object-fit: cover !important;
+}
+
+:host ::ng-deep .p-carousel .p-carousel-content .p-carousel-prev,
+:host ::ng-deep .p-carousel .p-carousel-content .p-carousel-next{
+  width: 0.5rem;
+
+}

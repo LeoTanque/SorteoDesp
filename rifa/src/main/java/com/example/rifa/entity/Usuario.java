@@ -22,6 +22,7 @@ public class Usuario {
     private String password;
     @Column(nullable = false)
     private String confirmarPassword;
+    private String telefono;
     private String codigoRecuperacion;
     private boolean esVip;
     private String codigoVip;
@@ -66,6 +67,14 @@ public class Usuario {
 
     public void setConfirmarPassword(String confirmarPassword) {
         this.confirmarPassword = confirmarPassword;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public String getCodigoRecuperacion() {

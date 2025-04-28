@@ -10,11 +10,12 @@ import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import Swal from 'sweetalert2';
 import { User } from '../../interfaces/user';
+import { InputMaskModule } from 'primeng/inputmask';
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, InputTextModule,
-    ButtonModule, DialogModule, ReactiveFormsModule, CalendarModule
+    ButtonModule, DialogModule, ReactiveFormsModule, CalendarModule, InputMaskModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -40,7 +41,8 @@ export class LoginComponent implements OnInit {
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmarPassword: ['', [Validators.required]]
+      confirmarPassword: ['', [Validators.required]],
+      telefono: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]]
     });
 
     this.loginForm = this.fb.group({
@@ -133,7 +135,13 @@ export class LoginComponent implements OnInit {
       this.showErrorAlert('La contraseña debe tener al menos 6 caracteres.');
     } else if (this.registerForm.get('confirmarPassword')?.errors?.['required']) {
       this.showErrorAlert('Debe llenar el campo de confirmar contraseña.');
-    } else { this.showErrorAlert('Error desconocido.');
+    }else if (this.registerForm.get('telefono')?.hasError('required')) {
+      this.showErrorAlert('Debe ingresar un teléfono.');
+    } else if (this.registerForm.get('telefono')?.hasError('pattern')) {
+      this.showErrorAlert('Formato de teléfono inválido.');
+    }
+
+    else { this.showErrorAlert('Error desconocido.');
 
     }
   }

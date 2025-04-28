@@ -10,16 +10,16 @@
         <img src="assets/logoSorteo.jpg" alt="Logo Sorteo" class="logo-header" />
       </div>
       <div class="content-box">
-        <div class="hashtag">#promoIncreíble</div>
+        <div class="hashtag">#Super Sorteo</div>
         <div class="product-title">{{ raffle?.producto?.nombre }}</div>
         <!--div-- class="product-description">
           {{ raffle?.producto?.descripcion }}
         </!--div-->
         <div class="product-description" [innerHTML]="raffle?.producto?.descripcion"></div>
         <div class="contact">
-          <p>Reservá tu número</p>
+          <p class="contact-number">Reservá tu número</p>
           <div class="contact-number">(55) 1234-5678</div>
-          <p>Reservá tu número por:</p>
+          <p class="contact-number">Reservá tu número por:</p>
         </div>
         <div class="price-box">{{ raffle?.precio | currency:'USD':'symbol':'1.0-0' }}</div>
       </div>

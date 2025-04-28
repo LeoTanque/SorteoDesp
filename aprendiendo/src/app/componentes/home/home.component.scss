@@ -370,6 +370,7 @@ section {
 .image-container img {
   //width: 600px;
   max-width: 600px;
+  width: 100%;
   height: 200px;
   border-radius: 10px;
 }
@@ -546,4 +547,41 @@ section:not(:last-of-type)::after {
   justify-content: center;
   align-items: center;
   padding: 20px;
+}
+/* 1) Apunta al p-carousel y a su container interno */
+:host ::ng-deep .p-carousel .p-carousel-container {
+  display: grid !important;
+  grid-template-columns: 2.5% 95% 2.5% !important;
+  align-items: center;
+}
+
+/* 2) Cada slide (= .p-carousel-item) se coloca en la columna central */
+:host ::ng-deep .p-carousel .p-carousel-item {
+  grid-column: 2 / 3 !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* 3) Opcional: centra los botones de navegación y asegúrate de que no rompan la rejilla */
+:host ::ng-deep .p-carousel .p-carousel-prev-nav,
+:host ::ng-deep .p-carousel .p-carousel-next-nav {
+  grid-column: 1 / 4 !important;  /* que cubran las tres columnas si quieres */
+  justify-self: center !important;
+}
+
+/* 4) Que la imagen ocupe siempre todo el ancho de su contenedor */
+:host ::ng-deep .p-carousel .image-container {
+  width: 100% !important;
+  padding: 0 !important;
+}
+:host ::ng-deep .p-carousel .image-container img {
+  width: 100% !important;
+  //height: auto !important;
+  //object-fit: cover !important;
+}
+
+:host ::ng-deep .p-carousel .p-carousel-content .p-carousel-prev,
+:host ::ng-deep .p-carousel .p-carousel-content .p-carousel-next{
+  width: 0.5rem;
+margin: 0;
 }
