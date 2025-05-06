@@ -10,14 +10,14 @@ import { environment } from '../../environment/environment';
 export class RaffleService {
 
   private baseUrl = 'http://localhost:8080/api/images';
-  //private baseUrl = `${environment.API_BASE_URL}/api/images`;
+  //private baseUrl = ' https://c5b7-149-22-84-137.ngrok-free.app/api/images';
 
   private apiUrl = 'http://localhost:8080/api/rifas';
-  //private apiUrl = `${environment.API_BASE_URL}/api/rifas`;
+  //private apiUrl = ' https://c5b7-149-22-84-137.ngrok-free.app/api/rifas';
 
   private VIPUrl ='http://localhost:8080/codigos-vip'
 
-  //private VIPUrl =`${environment.API_BASE_URL}/codigos-vip`;
+ // private VIPUrl =' https://c5b7-149-22-84-137.ngrok-free.app/codigos-vip';
 
   constructor(private http: HttpClient) { }
 

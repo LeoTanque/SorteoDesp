@@ -68,7 +68,11 @@ export class ExternalRaffleComponent implements OnInit{
       this.reservationForm = this.fb.group({
         name: ['', Validators.required],
         lastName: ['', Validators.required],
-        phone: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{6,8}$/)]],
+        //phone: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{6,8}$/)]],
+        phone: ['', [
+          Validators.required,
+          Validators.pattern(/^\+54 9 \d{2} \d{4}-\d{4}$/)
+        ]],
         //dni: ['', Validators.required],
        // code: ['', [Validators.required, this.validateRaffleCode.bind(this)]], // Validación correcta
         code: ['', Validators.required],
@@ -101,20 +105,16 @@ export class ExternalRaffleComponent implements OnInit{
 
 
 
-          // Suscribirse al observable del servicio de cuenta regresiva
-    this.subscription = this.raffleExecutionService.countdown$.subscribe(value => {
-      if (value !== null) {
+      this.subscription = this.raffleExecutionService.countdown$.subscribe(value => {
         this.countdownValue = value;
-        this.showCountdown = true;
-      } else {
-        this.showCountdown = false;
-      }
-      console.log('Contador recibido por servicio:', value);
-      if (value === 1) {
-        // Cuando llegue a 0, recarga la información ganadora
-        this.loadWinningInfo();
-      }
-    });
+        this.showCountdown = value !== null;
+        console.log('Contador recibido por servicio:', value);
+
+        // ⏱️ Cuando el servicio llegue a cero, dispara el resultado aquí
+        if (value === 0) {
+          this.onCountdownFinishedExternal();
+        }
+      });
 
 
   window.addEventListener('storage', this.onStorageEvent.bind(this));
@@ -206,8 +206,9 @@ isInvalid(field: string): boolean {
       console.log('Datos de la rifa cargada:', this.raffle);
       console.log('Teléfono del admin:', this.raffle.usuario.telefono);
       this.raffleCode = this.raffle?.code || '';
-      // Si la propiedad cantidadParticipantes no es un número, lo convertimos:
+
       const totalParticipantes = this.raffle && this.raffle.cantidadParticipantes
+
         ? parseInt(this.raffle.cantidadParticipantes, 10)
         : 10;
       // Actualizamos availableNumbers de 1 hasta totalParticipantes:
@@ -218,6 +219,17 @@ isInvalid(field: string): boolean {
     }
   }
 
+  async cargarRifa0(id: number) {
+    try {
+      const response = await this.rifaService.obtenerRifaPorId(id).toPromise();
+      this.raffle = response;
+      this.raffleCode = this.raffle.code;
+      this.availableNumbers = Array.from({ length: this.raffle.cantidadParticipantes }, (_, i) => i + 1);
+      console.log('Datos de la rifa cargada:', this.raffle);
+    } catch (error) {
+      console.error('Error al cargar la rifa:', error);
+    }
+  }
 
 
   loadRaffle(): void {
@@ -325,6 +337,7 @@ isInvalid(field: string): boolean {
               text: 'Tu número ha sido reservado correctamente.',
               confirmButtonText: 'Aceptar'
             });
+            localStorage.setItem('participantsUpdated', Date.now().toString());
           },
           error: (err) => {
             console.error('Error al enviar datos al API:', err);
@@ -359,39 +372,6 @@ isInvalid(field: string): boolean {
 
 
 
-onCountdownFinishedExternal0(): void {
-  // Recupera la información ganadora del localStorage
-  const storedData = localStorage.getItem('winningData');
-  if (storedData) {
-    try {
-      const winningDataArray = JSON.parse(storedData);
-      this.winningData = winningDataArray;
-      const currentWinner = this.getWinningEntry(this.raffle?.id);
-      if (currentWinner) {
-        this.winningNumber = currentWinner.winningNumber;
-        this.winningParticipant = currentWinner.winningParticipant;
-        console.log('Número ganador en ExternalRaffleComponent:', this.winningNumber);
-        console.log('Ganador:', this.winningParticipant);
-        Swal.fire({
-          title: 'Sorteo Ejecutado!',
-          text: 'El número ganador es: ' + this.winningNumber +
-                (this.winningParticipant ? ('. Ganador: ' + this.winningParticipant) : '. Este número no fue reservado.'),
-          icon: 'success',
-          confirmButtonText: 'Aceptar'
-        });
-        this.showConfetti = true;
-        // después de 2s, apaga para poder reutilizar
-        setTimeout(() => this.showConfetti = false, 2000);
-      } else {
-        console.log('No hay información de ganador para esta rifa.');
-      }
-    } catch (error) {
-      console.error('Error al parsear winningData:', error);
-    }
-  } else {
-    console.log('No se encontró información de ganadores en localStorage.');
-  }
-}
 
 onCountdownFinishedExternal(): void {
   // Recupera la información ganadora del localStorage

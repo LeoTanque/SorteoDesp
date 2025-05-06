@@ -8,11 +8,12 @@ import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 })
 export class ParticipanteService {
   private apiUrl = 'http://localhost:8080/api/participantes';
+  //private apiUrl = ' https://c5b7-149-22-84-137.ngrok-free.app/api/participantes'
 
   private participantsSubject = new BehaviorSubject<Participante[]>([]);
-
+  participants$ = this.participantsSubject.asObservable();
   constructor(private http: HttpClient) {
-    //this.refreshParticipants();
+   // this.refreshParticipants();
   }
 
   getAllParticipantes(): Observable<Participante[]> {
@@ -38,6 +39,13 @@ export class ParticipanteService {
  createParticipante(participante: Participante): Observable<Participante> {
   return this.http.post<Participante>(this.apiUrl, participante);
 }
+
+  // Crear y, tras ello, refrezcar la lista
+  createParticipante0(participante: Participante): Observable<Participante> {
+    return this.http.post<Participante>(this.apiUrl, participante).pipe(
+      tap(() => this.refreshParticipants())
+    );
+  }
 
  // Método POST para crear un nuevo participante, actualizando el BehaviorSubject
  createParticipante1(participante: Participante): Observable<Participante> {
@@ -68,10 +76,17 @@ export class ParticipanteService {
 
 
    // Si lo necesitas, puedes agregar métodos para actualizar o recargar la lista desde el backend
-   refreshParticipants(): void {
+   refreshParticipants1(): void {
     this.http.get<Participante[]>(this.apiUrl).subscribe({
       next: (data) => this.participantsSubject.next(data),
       error: (err) => console.error('Error al refrescar participantes:', err)
+    });
+  }
+
+    refreshParticipants(): void {
+    this.http.get<Participante[]>(this.apiUrl).subscribe({
+      next: all => this.participantsSubject.next(all),
+      error: err => console.error('Error refrescando participantes:', err)
     });
   }
 

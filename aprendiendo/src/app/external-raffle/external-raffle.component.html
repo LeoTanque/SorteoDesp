@@ -189,7 +189,15 @@
       <input type="text" pInputText placeholder="Apellido" formControlName="lastName" />
       <small class="error" *ngIf="isInvalid('lastName')">El apellido es obligatorio.</small>
 
-      <p-inputMask mask="99-99999999" placeholder="Teléfono" formControlName="phone"></p-inputMask>
+      <!--p-inputMask-- mask="99-99999999" placeholder="Teléfono" formControlName="phone"></!--p-inputMask-->
+      <p-inputMask
+      mask="+54 9 99 9999-9999"
+      placeholder="+54 9 -- -----"
+      formControlName="phone"
+      [autoClear]="false"
+      slotChar="_"
+    ></p-inputMask>
+
       <small class="error" *ngIf="isInvalid('phone')">
         <ng-container *ngIf="reservationForm.get('phone')?.hasError('required')">El teléfono es obligatorio.</ng-container>
         <ng-container *ngIf="reservationForm.get('phone')?.hasError('pattern')">El formato debe ser 99-99999999.</ng-container>

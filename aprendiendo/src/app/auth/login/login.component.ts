@@ -42,7 +42,11 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmarPassword: ['', [Validators.required]],
-      telefono: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]]
+
+      telefono: ['', [
+        Validators.required,
+        Validators.pattern(/^\+54 9 \d{2} \d{4}-\d{4}$/)
+      ]]
     });
 
     this.loginForm = this.fb.group({

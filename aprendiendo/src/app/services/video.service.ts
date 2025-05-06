@@ -6,8 +6,9 @@ import { catchError, map, Observable, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class VideoService {
-  //private apiUrl = 'http://localhost:8080/videos/';
+
   private apiUrl = 'http://localhost:8080/api/videos/';
+  //private apiUrl = ' https://c5b7-149-22-84-137.ngrok-free.app/api/videos/';
   constructor(private http: HttpClient) { }
 
 

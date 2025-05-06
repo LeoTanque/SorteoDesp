@@ -9,7 +9,7 @@ import { CodigoVip } from '../interfaces/codigo-vip';
 export class CodigoVipServiceService {
 
  private apiUrl = 'http://localhost:8080/codigos-vip';
-
+ //private apiUrl = ' https://c5b7-149-22-84-137.ngrok-free.app/codigos-vip';
   constructor(private http: HttpClient) {}
 
   generarCodigoVip(cantidadRifas: number): Observable<any> {
